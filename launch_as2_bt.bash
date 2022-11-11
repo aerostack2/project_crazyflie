@@ -17,17 +17,13 @@ new_window 'crazyflie_interface' "ros2 launch crazyflie_platform crazyflie_platf
     estimator_type:=2 \
     controller_type:=1"
 
-new_window 'state_estimator' "ros2 launch basic_state_estimator basic_state_estimator_launch.py \
-    namespace:=$drone_namespace \
-    odom_only:=True"
+new_window 'state_estimator' "ros2 launch basic_state_estimator mocap_state_estimator_launch.py \
+    namespace:=$drone_namespace"
 
 new_window 'controller_manager' "ros2 launch controller_manager controller_manager_launch.py \
     namespace:=$drone_namespace  \
     use_bypass:=False \
     config:=drone_config/controller.yaml"
-
-# new_window 'traj_generator' "ros2 launch trajectory_generator trajectory_generator_launch.py  \
-#     drone_id:=$drone_namespace "
 
 new_window 'basic_behaviours' "ros2 launch as2_basic_behaviours all_basic_behaviours_launch.py \
     drone_id:=$drone_namespace \
@@ -44,7 +40,7 @@ new_window 'viewer' "gnome-terminal -x bash -c '\
 new_window 'mission_planner' "ros2 launch behaviour_trees behaviour_trees.launch.py \
     drone_id:=$drone_namespace \
     groot_logger:=true \
-    tree:=trees/go.xml"
+    tree:=trees/square.xml"
 
 new_window 'groot' "$AEROSTACK2_WORKSPACE/build/groot/Groot --mode monitor"
 

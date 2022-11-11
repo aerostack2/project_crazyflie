@@ -9,10 +9,10 @@
             <Action ID="Arm" service_name="set_arming_state"/>
             <Action ID="Offboard" service_name="set_offboard_mode"/>
             <Action ID="TakeOff" height="1.0" speed="0.5"/>
-            <Action ID="GoTo" max_speed="0.5" pose="0;2;1" yaw_angle="0.0" yaw_mode="0"/>
-            <Action ID="GoTo" max_speed="0.5" pose="2;2;1" yaw_angle="0.0" yaw_mode="0"/>
-            <Action ID="GoTo" max_speed="0.5" pose="2;0;1" yaw_angle="0.0" yaw_mode="0"/>
-            <Action ID="GoTo" max_speed="0.5" pose="0;0;1" yaw_angle="0.0" yaw_mode="0"/>
+            <Action ID="GoTo" max_speed="0.2" pose="0;3;1" yaw_angle="0.0" yaw_mode="0"/>
+            <Action ID="GoTo" max_speed="0.2" pose="3;3;1" yaw_angle="0.0" yaw_mode="0"/>
+            <Action ID="GoTo" max_speed="0.2" pose="3;0;1" yaw_angle="0.0" yaw_mode="0"/>
+            <Action ID="GoTo" max_speed="0.2" pose="0;0;1" yaw_angle="0.0" yaw_mode="0"/>
             <Action ID="Land" speed="0.5"/>
         </SequenceStar>
     </BehaviorTree>
