@@ -3,7 +3,7 @@
   ros__parameters:
     default_goto_plugin: "goto_plugin_position"
     default_goto_max_speed: 5.0  # [m/s]
-    goto_threshold: 0.1  # [m]
+    goto_threshold: 0.13 # [m]
     goto_proportional_speed_limit: true # for speed plugin
     frame_id_pose: "/earth"
     frame_id_twist: "/earth"

@@ -7,15 +7,63 @@ import threading
 from typing import List
 from python_interface.drone_interface import DroneInterface
 
-pos= [[1,0,1],[-1,1,1.5],[-1,-1,2.0]]
-# drones_ns=['cf0','cf1','cf2']
-drones_ns=['cf0','cf1']
+# pos= [[1,0,1],[-1,1,1.5],[-1,-1,2.0]]
+
+h1=1.0
+h2=1.5
+h3=2.0
+
+
+v0=[-2,-1,h1]
+v1=[0,2,h1]
+v2=[2,-1,h1]
+
+v3=[2,1,h2]
+v4=[-2,1,h2]
+v5=[0,-2,h2]
+
+
+v6=v0
+v6[2]=h3
+v7=v1
+v7[2]=h3
+v8=v2
+v8[2]=h3
+
+
+l0=[2,0,1.0]
+l1=[-2,0,1.0]
+l2=[0,0,1.0]
+
+
+# pos0= [[1,1,1],[1,-1,1.5],[-1,-1,1.0],[-1,0,1]]
+# pos1= [[-1,-1,1],[-1,1,1.5],[1,1,2.0],[1,0,1]]
+# pos2= [[-1,-1,1],[-1,1,1.5],[1,1,2.0],[1,0,1]]
+
+# pos0= [[1,1,1],[1,-1,1.5],[-1,-1,1.0],[-1,0,1]]
+
+pos0= [v2,v1,v0,v2,v5,v4,v3,v5,v8,v7,v6,v8,v2,l0]
+pos1= [v0,v2,v1,v0,v4,v3,v5,v4,v6,v8,v7,v6,v0,l1]
+pos2= [v1,v0,v2,v1,v3,v5,v4,v3,v7,v6,v8,v7,v1,l2]
+
+drones_ns=['cf0','cf1','cf2']
+# drones_ns=['cf0','cf1']
 # drones_ns=['cf1']
 
-n_point=0
-def pose_generator():
-    ret =pos[n_point]
-    n_point+=1
+n_point_0=0
+n_point_1=0
+n_point_2=0
+def pose_generator(uav:DroneInterface):
+    global n_point_0,n_point_1,n_point_2
+    if uav.get_namespace()[-1]=='0':
+        ret = pos0[n_point_0]
+        n_point_0+=1
+    elif uav.get_namespace()[-1]=='1':
+        ret = pos1[n_point_1]
+        n_point_1+=1
+    elif uav.get_namespace()[-1]=='2':
+        ret = pos2[n_point_2]
+        n_point_2+=1
     return ret
 
 # def create_circle(radius, centre, n_uav):
@@ -53,7 +101,7 @@ def land(drone_interface:DroneInterface):
     drone_interface.land(0.4)
 
 def go_to(drone_interface:DroneInterface):
-    drone_interface.go_to_point(pose_generator(),0.5)
+    drone_interface.go_to_point(pose_generator(drone_interface),2.0)
 
 def confirm(uavs:List[DroneInterface]):
     confirmation = input("Continue? (y/n): ")
@@ -89,7 +137,11 @@ if __name__ == '__main__':
 
     print("Go to")
     confirm(uavs)
-    run_func(uavs, go_to)
+    for i in range(pos0):
+        run_func(uavs, go_to)
+        n_point_0=0
+        n_point_1=0
+        n_point_2=0
 
     print("Land")
     confirm(uavs)
