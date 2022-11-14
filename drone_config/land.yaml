@@ -1,0 +1,6 @@
+/**:
+  ros__parameters:
+    default_land_plugin: "land_plugin_speed"
+    default_land_speed: 0.2     # [m/s]
+    frame_id_pose: "/earth"
+    frame_id_twist: "/earth"
