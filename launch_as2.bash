@@ -37,7 +37,7 @@ new_window 'as2_controller_manager' "ros2 launch as2_controller_manager controll
     info_freq:=10.0 \
     use_bypass:=false \
     plugin_name:=controller_plugin_speed_controller \
-    plugin_config_file:=config/controller.yaml"
+    plugin_config_file:=drone_config/controller.yaml"
 
 if [[ "$using_optitrack" == "true" ]]
 then
