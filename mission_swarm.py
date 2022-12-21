@@ -48,7 +48,7 @@ pos2= [v1,v0,v2,v1,v3,v5,v4,v3,v7,v6,v8,v7,v1,l2]
 
 drones_ns=['cf0','cf1','cf2']
 # drones_ns=['cf0','cf1']
-# drones_ns=['cf1']
+# drones_ns=['cf0']
 
 n_point_0=0
 n_point_1=0
@@ -101,7 +101,7 @@ def land(drone_interface:DroneInterface):
     drone_interface.land(0.4)
 
 def go_to(drone_interface:DroneInterface):
-    drone_interface.go_to_point(pose_generator(drone_interface),2.0)
+    drone_interface.go_to_point(pose_generator(drone_interface),1.0)
 
 def confirm(uavs:List[DroneInterface]):
     confirmation = input("Continue? (y/n): ")
@@ -134,20 +134,15 @@ if __name__ == '__main__':
     confirm(uavs)
     run_func(uavs, takeoff)
 
-
     print("Go to")
     confirm(uavs)
-    for i in range(pos0):
+    for i in range(len(pos0)):
         run_func(uavs, go_to)
-        n_point_0=0
-        n_point_1=0
-        n_point_2=0
 
     print("Land")
     confirm(uavs)
     run_func(uavs, land)
 
-    
     print("Shutdown")
     confirm(uavs)
     rclpy.shutdown()

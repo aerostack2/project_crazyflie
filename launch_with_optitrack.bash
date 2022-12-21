@@ -22,13 +22,14 @@ fi
 source ./launch_tools.bash
 
 new_session $drone_namespace
-new_window 'crazyflie_interface' "ros2 launch crazyflie_platform crazyflie_platform_launch.py \
-    drone_id:=$drone_namespace \
-    drone_URI:=$cf_uri \
+
+if [ "$run_mocap" = "true" ]; then
+new_window 'crazyflie_interface' "ros2 launch crazyflie_platform crazyflie_swarm_launch.py \
     external_odom:=true \
     external_odom_topic:=self_localization/pose \
     estimator_type:=2 \
     controller_type:=1"
+fi
 
 new_window 'state_estimator' "ros2 launch basic_state_estimator mocap_state_estimator_launch.py \
     namespace:=$drone_namespace"

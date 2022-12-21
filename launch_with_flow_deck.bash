@@ -5,9 +5,9 @@ drone_namespace='cf'
 
 # cf_uri="radio://0/40/2M/E7E7E7E7E7"
 # cf_uri="radio://0/66/2M/E7E7E7E744"
-cf_uri="radio://0/79/2M/E7E7E7E744"
-aideck_ip="192.168.0.140"
-aideck_port="5000"
+cf_uri="radio://0/60/250K/E7E7E7E700"
+# aideck_ip="192.168.0.140"
+# aideck_port="5000"
 
 source ./launch_tools.bash
 
