@@ -1,0 +1,156 @@
+# ~/.tmuxinator/project_crazyflie_basic.yml
+
+<%
+  if @settings["simulated"] == 'false'
+    simulated = false
+  elsif @settings["simulated"] == 'true'
+    simulated = true
+  end
+  estimator_type = @settings["estimator_plugin"]
+  if @settings["launch_keyboard_teleop"] == 'false'
+    use_keyboard_teleop = false
+  elsif @settings["launch_keyboard_teleop"] == 'true'
+    use_keyboard_teleop = true
+  end
+  if @settings["record_rosbag"] == 'false'
+    record_rosbag = false
+  elsif @settings["record_rosbag"] == 'true'
+    record_rosbag = true
+  end
+%>
+name: project_crazyflie_basic
+root: ./
+startup_window: alphanumeric_viewer
+pre_window: |
+  <%- if simulated %>
+  export use_sim_time=true;
+  export drone_namespace=drone_sim_0;
+  export simulation_config=sim_config/world.json;
+  <%- else %>
+  export use_sim_time=false;
+  export drone_namespace=cf0;
+  <%- if estimator_type == "mocap" %>
+  export using_optitrack=true
+  <%- elsif estimator_type == "raw_odometry" %>
+  export using_optitrack=false
+  <%- end %>
+  <%- end %>
+  export behavior_type=position;
+on_project_exit: pkill -9 -f "gazebo"
+windows:
+  <%- if simulated %>
+  - gazebo:
+      layout: 
+      panes:
+        - ros2 launch as2_ign_gazebo_assets launch_simulation.py
+            use_sim_time:=$use_sim_time
+            config_file:=$simulation_config
+  - platform:
+      layout: tiled
+      panes:
+        - ros2 launch as2_platform_ign_gazebo ign_gazebo_launch.py
+            namespace:=$drone_namespace
+            use_sim_time:=$use_sim_time
+            config_file:=$simulation_config
+  <%- else %>
+  - platform:
+      layout: tiled
+      panes:
+        - ros2 launch as2_platform_crazyflie crazyflie_swarm_launch.py
+            drone_id:=$drone_namespace
+            external_odom_topic:=self_localization/pose
+            external_odom:=$using_optitrack
+            estimator_type:=2
+            controller_type:=1
+            swarm_config_file:=real_config/crazy_swarm.yaml
+  <%- end %>
+  <%- if estimator_type == "mocap" %>
+  - mocap:
+      layout:
+      panes:
+        - ros2 launch mocap_optitrack mocap.launch.py
+            namespace:=optitrack
+            config_file:=config/mocap.yaml
+  <%- end %>
+  - state_estimator:
+      layout:
+      panes:
+        <%- if simulated %>
+        - ros2 launch as2_state_estimator state_estimator_launch.py
+            namespace:=$drone_namespace
+            use_sim_time:=$use_sim_time
+            plugin_name:=ground_truth
+            plugin_config_file:=sim_config/default_state_estimator.yaml
+        <%- else %>
+        <%- if estimator_type == "mocap" %>
+        - ros2 launch as2_state_estimator state_estimator_launch.py
+            namespace:=$drone_namespace
+            plugin_name:=mocap_pose
+        <%- elsif estimator_type == "raw_odometry" %>
+        - ros2 launch as2_state_estimator state_estimator_launch.py
+            namespace:=$drone_namespace
+            plugin_name:=raw_odometry
+        <%- end %>
+        <%- end %>
+  - alphanumeric_viewer:
+      layout: tiled
+      panes:
+        - ros2 run as2_alphanumeric_viewer as2_alphanumeric_viewer_node
+            --ros-args -r  __ns:=/$drone_namespace
+  - controller:
+      layout:
+      panes:
+        - ros2 launch as2_motion_controller controller_launch.py
+            namespace:=$drone_namespace
+            use_sim_time:=$use_sim_time
+            cmd_freq:=100.0
+            info_freq:=10.0
+            plugin_name:=pid_speed_controller
+            <%- if simulated %>
+            use_bypass:=true
+            plugin_config_file:=sim_config/controller.yaml
+            <%- else %>
+            use_bypass:=false
+            plugin_config_file:=real_config/controller.yaml
+            <%- end %>          
+  - behaviors:
+      layout:
+      panes:
+        - ros2 launch as2_behaviors_motion motion_behaviors_launch.py
+            namespace:=$drone_namespace
+            use_sim_time:=$use_sim_time
+            follow_path_plugin_name:=follow_path_plugin_$behavior_type
+            go_to_plugin_name:=go_to_plugin_$behavior_type
+            takeoff_plugin_name:=takeoff_plugin_$behavior_type
+            land_plugin_name:=land_plugin_speed
+        <%- if not simulated %>
+            follow_path_threshold:=0.3
+            land_speed_condition_height:=0.2
+            land_speed_condition_percentage:=0.2
+        <%- end %>
+        - ros2 launch as2_behaviors_motion follow_reference_behavior_launch.py
+            namespace:=$drone_namespace
+            use_sim_time:=$use_sim_time
+        <%- if ENV['behavior_type'] == "trajectory" %>
+        - ros2 launch as2_behaviors_trajectory_generation generate_polynomial_trajectory_behavior_launch.py
+            namespace:=$drone_namespace
+            use_sim_time:=$use_sim_time
+        <%- end %>
+  <%- if use_keyboard_teleop %>
+  - keyboard_teleop:
+      layout:
+      panes:
+        - ros2 launch as2_keyboard_teleoperation as2_keyboard_teleoperation_launch.py
+            namespace:=$drone_namespace
+            use_sim_time:=$use_sim_time
+  <%- end %>
+  <%- if record_rosbag %>
+  - rosbag:
+      layout:
+      panes:
+        - ./rosbag/record_rosbag.bash $drone_namespace
+  <%- end %>
+  - mission:
+      layout:
+      panes:
+        - 
