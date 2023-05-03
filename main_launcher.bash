@@ -51,33 +51,4 @@ estimator_plugin=${estimator_plugin:="ground_truth"}  # default ign_gz
 record_rosbag=${record_rosbag:="false"}
 launch_keyboard_teleop=${launch_keyboard_teleop:="false"}
 
-echo $simulated
-
-tmuxinator start -p session.yml simulated=${simulated} estimator_plugin=${estimator_plugin} record_rosbag=${record_rosbag} launch_keyboard_teleop=${launch_keyboard_teleop}
-
-# if [[ "$platform" == "ign_gz" ]]; then
-#     as2_launcher="./sim/as2_sim_launch.bash"
-#     drone_namespace=${drone_namespace:="drone_sim_0"}
-#     # simulation_config
-#     extra="sim/simulation_config/default.json"
-# elif [[ "$platform" == "dji_osdk" ]]; then
-#     as2_launcher="./dji_osdk/as2_dji_launch.bash"
-#     drone_namespace=${drone_namespace:="drone_0"}
-#     # simulation_mode
-#     extra="true"
-# else
-#     echo "Invalid platform"
-#     exit 1
-# fi
-
-# # Run nodes
-# $as2_launcher $drone_namespace $launch_keyboard_teleop $record_rosbag $extra
-
-# session=${drone_namespace}
-
-# # if inside a tmux session detach before attaching to the session
-# if [ -n "$TMUX" ]; then
-#     tmux switch-client -t $session
-# else
-#     tmux attach -t $session:0
-# fi
+tmuxinator start -n drone_sim_0 -p utils/session.yml drone_namespace="drone_sim_0" base_launch="true" simulated=${simulated} estimator_plugin=${estimator_plugin} record_rosbag=${record_rosbag} launch_keyboard_teleop=${launch_keyboard_teleop}

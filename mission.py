@@ -1,23 +1,24 @@
 #!/bin/python3
 
-import os
 from time import sleep
 import rclpy
-from python_interface.drone_interface import DroneInterface
-from as2_msgs.msg import YawMode
+import argparse
+from as2_python_api.drone_interface import DroneInterface
 
+parser = argparse.ArgumentParser(
+    description="Starts gates mission for crazyswarm in either simulation or real environment")
+parser.add_argument('-s', '--simulated', action='store_true', default=True)
 
 def drone_run(drone_interface: DroneInterface):
+    """ Run the mission """
 
-    speed = 2.0
-    takeoff_height = 0.5
-    height = 2.0
+    speed = 0.5
+    takeoff_height = 1.0
+    height = 1.0
 
-    sleep_time = 4.0
-    yaw_mode = YawMode()
-    yaw_mode.mode = YawMode.PATH_FACING
+    sleep_time = 2.0
 
-    dim = 2.0
+    dim = 1.0
     path = [
         [dim, dim, height],
         [dim, -dim, height],
@@ -34,56 +35,38 @@ def drone_run(drone_interface: DroneInterface):
 
     ##### TAKE OFF #####
     print("Take Off")
-    drone_interface.takeoff(takeoff_height, speed=0.2)
+    drone_interface.takeoff(takeoff_height, speed=1.0)
     print("Take Off done")
     sleep(sleep_time)
 
-    ##### FOLLOW PATH #####
-    sleep(sleep_time)
-    print(f"Follow path with path facing: [{path}]")
-    drone_interface.follow_path.follow_path_with_path_facing(path, speed)
-    print("Follow path done")
-
-    sleep(sleep_time)
-    print(f"Follow path with keep yaw: [{path}]")
-    drone_interface.follow_path.follow_path_with_keep_yaw(path, speed)
-    print("Follow path done")
-
-    sleep(sleep_time)
-    print(f"Follow path with angle {-1.57}: [{path}]")
-    drone_interface.follow_path.follow_path_with_yaw(path, speed, angle=-1.57)
-    print("Follow path done")
-
-    ##### GOTO #####
+    ##### GO TO #####
     for goal in path:
         print(f"Go to with path facing {goal}")
-        drone_interface.goto.go_to_point_path_facing(goal, speed=speed)
-        print("Go to done")
-    sleep(sleep_time)
-
-    for goal in path:
-        print(f"Go to with keep yaw {goal}")
-        drone_interface.goto.go_to_point(goal, speed=speed)
-        print("Go to done")
-    sleep(sleep_time)
-
-    for goal in path:
-        print(f"Go to with angle {-1.57}: {goal}")
-        drone_interface.goto.go_to_point_with_yaw(goal, speed=speed, angle=-1.57)
+        drone_interface.go_to.go_to_point_path_facing(goal, speed=speed)
         print("Go to done")
     sleep(sleep_time)
 
     ##### LAND #####
     print("Landing")
-    drone_interface.land(speed=0.3)
+    drone_interface.land(speed=0.5)
     print("Land done")
 
+    drone_interface.disarm()
 
 if __name__ == '__main__':
+
+    if parser.parse_args().simulated:
+        print("Mission running in simulation mode")
+        uav_name = "drone_sim_0"
+        sim = True
+    else:
+        print("Mission running in real mode")
+        uav_name = "cf0"
+        sim = False        
+
     rclpy.init()
-    # Get environment variable AEROSTACK2_SIMULATION_DRONE_ID
-    uav_name = "cf"
-    uav = DroneInterface(uav_name, verbose=False, use_sim_time=True)
+    
+    uav = DroneInterface(uav_name, verbose=False, use_sim_time=sim)
 
     drone_run(uav)
 
