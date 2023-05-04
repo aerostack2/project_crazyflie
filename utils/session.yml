@@ -35,8 +35,10 @@ pre_window: |
   export use_sim_time=false;
   <%- if estimator_type == "mocap" %>
   export using_optitrack=true
+  export platform_config_file=real_config/platform_config_mocap.yaml
   <%- elsif estimator_type == "raw_odometry" %>
   export using_optitrack=false
+  export platform_config_file=real_config/platform_config_flowdeck.yaml
   <%- end %>
   <%- end %>
   export behavior_type=position;
@@ -50,20 +52,17 @@ windows:
             use_sim_time:=$use_sim_time
             config_file:=<%= simulation_config %>
   <%- else %>
-  <%- if base_launch == "true" %>
+  <%- if base_launch %>
   - platform:
       layout: tiled
       panes:
         - ros2 launch as2_platform_crazyflie crazyflie_swarm_launch.py
-            external_odom_topic:=self_localization/pose
-            external_odom:=$using_optitrack
-            estimator_type:=2
-            controller_type:=1
-            swarm_config_file:=real_config/crazy_swarm.yaml
+            platform_config_file:=$platform_config_file
+            swarm_config_file:=real_config/swarm_config_file.yaml
   <%- end %>
   <%- end %>
   <%- if estimator_type == "mocap" %>
-  <%- if base_launch == "true" %>
+  <%- if base_launch %>
   - mocap:
       layout:
       panes:
