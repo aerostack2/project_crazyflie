@@ -43,17 +43,16 @@ while getopts ":s:w:e:r:t" opt; do
   esac
 done
 
+# Shift optional args
+shift $((OPTIND -1))
+
+## DEFAULTS
+simulated=${simulated:="false"}  # default ign_gz
 if [[ ${simulated} == "false" && -z ${estimator_plugin} ]]; then
   echo "Error: when -s is false, -e argument must be set" 1>&2
   usage
   exit 1
 fi
-
-# Shift optional args
-shift $((OPTIND -1))
-
-## DEFAULTS
-simulated=${simulated:="true"}  # default ign_gz
 swarm=${swarm:="false"}
 estimator_plugin=${estimator_plugin:="ground_truth"}  # default ign_gz
 record_rosbag=${record_rosbag:="false"}
