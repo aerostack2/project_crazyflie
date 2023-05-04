@@ -7,7 +7,7 @@ from as2_python_api.drone_interface import DroneInterface
 
 parser = argparse.ArgumentParser(
     description="Starts gates mission for crazyswarm in either simulation or real environment")
-parser.add_argument('-s', '--simulated', action='store_true', default=True)
+parser.add_argument('-s', '--simulated', action='store_true', default=False)
 
 def drone_run(drone_interface: DroneInterface):
     """ Run the mission """
