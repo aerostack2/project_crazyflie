@@ -13,32 +13,34 @@ usage() {
 }
 
 # Arg parser
-while getopts ":s:w:e:r:t" opt; do
+while getopts ":sw:e:r:t" opt; do
   case ${opt} in
     s )
-      simulated=${OPTARG}
+      simulated="true"
       ;;
     w )
-      swarm=${OPTARG}
+      swarm="${OPTARG}"
       ;;
     e )
-      estimator_plugin=${OPTARG}
+      estimator_plugin="${OPTARG}"
       ;;
     r )
-      record_rosbag=${OPTARG}
+      record_rosbag="true"
       ;;
     t )
-      launch_keyboard_teleop=${OPTARG}
+      launch_keyboard_teleop="true"
       ;;
     \? )
-      echo "Invalid option: -$OPTARG" 1>&2
+      echo "Invalid option: -$OPTARG" >&2
       usage
       exit 1
       ;;
     : )
-      echo "Option -$OPTARG requires an argument" 1>&2
-      usage
-      exit 1
+      if [[ ! $OPTARG =~ ^[srt]$ ]]; then
+        echo "Option -$OPTARG requires an argument" >&2
+        usage
+        exit 1
+      fi
       ;;
   esac
 done
