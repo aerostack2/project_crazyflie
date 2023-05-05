@@ -19,7 +19,7 @@ while getopts ":sw:e:r:t" opt; do
       simulated="true"
       ;;
     w )
-      swarm="${OPTARG}"
+      swarm="true"
       ;;
     e )
       estimator_plugin="${OPTARG}"
@@ -36,7 +36,7 @@ while getopts ":sw:e:r:t" opt; do
       exit 1
       ;;
     : )
-      if [[ ! $OPTARG =~ ^[srt]$ ]]; then
+      if [[ ! $OPTARG =~ ^[swrt]$ ]]; then
         echo "Option -$OPTARG requires an argument" >&2
         usage
         exit 1

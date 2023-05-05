@@ -68,7 +68,7 @@ windows:
       panes:
         - ros2 launch mocap_optitrack mocap.launch.py
             namespace:=optitrack
-            config_file:=config/mocap.yaml
+            config_file:=real_config/mocap.yaml
   <%- end %>
   <%- end %>
   - state_estimator:
