@@ -6,7 +6,7 @@ usage() {
     echo "  options:"
     echo "      -s: simulated, choices: [true | false]"
     echo "      -w: swarm, choices: [true | false]"
-    echo "      -e: estimator_type, choices: [ground_truth, raw_odometry, mocap]"
+    echo "      -e: estimator_type, choices: [ground_truth, raw_odometry, mocap_pose]"
     echo "      -r: record rosbag"
     echo "      -t: launch keyboard teleoperation"
     echo "      drone_namespace: [drone_sim_0 | drone_0]"

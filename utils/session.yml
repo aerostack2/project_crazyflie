@@ -4,8 +4,8 @@
 # Input parameters
 drone_namespace     = @settings["drone_namespace"]
 simulation          = @settings["simulation"] == "true"
-simulation_config = @settings["simulation_config"]
-estimator_type      = @settings["estimator_plugin"]
+simulation_config   = @settings["simulation_config"]
+estimator_plugin    = @settings["estimator_plugin"]
 base_launch         = @settings["base_launch"] == "true"
 use_keyboard_teleop = @settings["launch_keyboard_teleop"] == "true"
 record_rosbag       = @settings["record_rosbag"] == "true"
@@ -13,12 +13,20 @@ record_rosbag       = @settings["record_rosbag"] == "true"
 # Other parameters
 behavior_type       = "position"
 
-if estimator_type == "mocap"
+if estimator_plugin == "mocap_pose"
     using_optitrack = true
     platform_config_file = "real_config/platform_config_mocap.yaml"
-elsif estimator_type == "raw_odometry"
+elsif estimator_plugin == "raw_odometry"
     using_optitrack = false
     platform_config_file = "real_config/platform_config_flowdeck.yaml"
+end
+
+if simulation
+    config_path     = "sim_config"
+    use_bypass      = true
+else
+    config_path     = "real_config"
+    use_bypass      = false
 end
 
 %>
@@ -26,24 +34,20 @@ attach: false
 root: ./
 startup_window: alphanumeric_viewer
 windows:
-  <%- if simulation %>
   - platform:
       layout: tiled
       panes:
+  <%- if simulation %>
         - ros2 launch as2_platform_ign_gazebo ign_gazebo_launch.py
             namespace:=<%= drone_namespace %>
             use_sim_time:=<%= simulation %>
             simulation_config_file:=<%= simulation_config %>
-  <%- end %>
-  <%- if not simulation and base_launch %>
-  - platform:
-      layout: tiled
-      panes:
+  <%- elsif not simulation and base_launch %>
         - ros2 launch as2_platform_crazyflie crazyflie_swarm_launch.py
             platform_config_file:=$platform_config_file
             swarm_config_file:=real_config/swarm_config_file.yaml
   <%- end %>
-  <%- if estimator_type == "mocap" and base_launch %>
+  <%- if estimator_plugin == "mocap_pose" and base_launch %>
   - mocap:
       layout:
       panes:
@@ -54,22 +58,11 @@ windows:
   - state_estimator:
       layout:
       panes:
-        <%- if simulation %>
         - ros2 launch as2_state_estimator state_estimator_launch.py
             namespace:=<%= drone_namespace %>
             use_sim_time:=<%= simulation %>
-            plugin_name:=ground_truth
-            plugin_config_file:=sim_config/default_state_estimator.yaml
-        <%- end %>
-        <%- if not simulation and estimator_type == "mocap" %>
-        - ros2 launch as2_state_estimator state_estimator_launch.py
-            namespace:=<%= drone_namespace %>
-            plugin_name:=mocap_pose
-        <%- elsif not simulation and estimator_type == "raw_odometry" %>
-        - ros2 launch as2_state_estimator state_estimator_launch.py
-            namespace:=<%= drone_namespace %>
-            plugin_name:=raw_odometry
-        <%- end %>
+            plugin_name:=<%= estimator_plugin %>
+            plugin_config_file:=<%= config_path %>/default_state_estimator.yaml
   - alphanumeric_viewer:
       layout: tiled
       panes:
@@ -84,13 +77,8 @@ windows:
             cmd_freq:=100.0
             info_freq:=10.0
             plugin_name:=pid_speed_controller
-            <%- if simulation %>
-            use_bypass:=true
-            plugin_config_file:=sim_config/controller.yaml
-            <%- else %>
-            use_bypass:=false
-            plugin_config_file:=real_config/controller.yaml
-            <%- end %>          
+            use_bypass:=<%= use_bypass %>
+            plugin_config_file:=<%= config_path %>/controller.yaml     
   - behaviors:
       layout:
       panes:
@@ -114,15 +102,13 @@ windows:
             namespace:=<%= drone_namespace %>
             use_sim_time:=<%= simulation %>
         <%- end %>
-  <%- if use_keyboard_teleop %>
-  <%- if base_launch %>
+  <%- if use_keyboard_teleop and base_launch %>
   - keyboard_teleop:
       layout:
       panes:
         - ros2 launch as2_keyboard_teleoperation as2_keyboard_teleoperation_launch.py
             namespace:=<%= drone_namespace %>
             use_sim_time:=<%= simulation %>
-  <%- end %>
   <%- end %>
   <%- if record_rosbag %>
   - rosbag:
