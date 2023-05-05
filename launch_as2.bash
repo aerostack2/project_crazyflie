@@ -13,7 +13,7 @@ usage() {
 }
 
 # Arg parser
-while getopts ":sw:e:r:t" opt; do
+while getopts "se:wrt" opt; do
   case ${opt} in
     s )
       simulated="true"
