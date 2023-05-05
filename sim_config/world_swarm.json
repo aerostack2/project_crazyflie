@@ -1,21 +1,21 @@
 {
-    "world": "empty",
+    "world_name": "empty",
     "drones": [
         {
-            "model": "quadrotor_base",
-            "name": "drone_sim_0",
+            "model_type": "quadrotor_base",
+            "model_name": "drone_sim_0",
             "xyz": [ 2.0, 0.0, 0.2 ],
             "rpy": [ 0, 0, 0.0 ]
         },
         {
-            "model": "quadrotor_base",
-            "name": "drone_sim_1",
+            "model_type": "quadrotor_base",
+            "model_name": "drone_sim_1",
             "xyz": [ -2.0, 0.0, 0.2 ],
             "rpy": [ 0, 0, 0.0 ]
         },
         {
-            "model": "quadrotor_base",
-            "name": "drone_sim_2",
+            "model_type": "quadrotor_base",
+            "model_name": "drone_sim_2",
             "xyz": [ 0.0, 0.0, 0.2 ],
             "rpy": [ 0, 0, 0.0 ]
         }
