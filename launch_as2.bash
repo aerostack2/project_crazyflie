@@ -6,7 +6,7 @@ usage() {
     echo "  options:"
     echo "      -s: simulated, choices: [true | false]"
     echo "      -w: swarm, choices: [true | false]"
-    echo "      -e: estimator_type, choices: [ground_truth, raw_odometry, mocap]"
+    echo "      -e: estimator_type, choices: [ground_truth, raw_odometry, mocap_pose]"
     echo "      -r: record rosbag"
     echo "      -t: launch keyboard teleoperation"
     echo "      drone_namespace: [drone_sim_0 | drone_0]"
@@ -84,7 +84,7 @@ do
     base_launch="false"
   fi 
 
-  tmuxinator start -n ${ns} -p utils/session.yml drone_namespace=${ns} base_launch=${base_launch} simulated=${simulated} estimator_plugin=${estimator_plugin} record_rosbag=${record_rosbag} launch_keyboard_teleop=${launch_keyboard_teleop} simulation_config=${simulation_config} &
+  tmuxinator start -n ${ns} -p utils/session.yml drone_namespace=${ns} base_launch=${base_launch} simulation=${simulated} estimator_plugin=${estimator_plugin} record_rosbag=${record_rosbag} launch_keyboard_teleop=${launch_keyboard_teleop} simulation_config=${simulation_config} &
   wait
 done
 
