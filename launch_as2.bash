@@ -63,18 +63,17 @@ launch_keyboard_teleop=${launch_keyboard_teleop:="false"}
 if [[ ${simulated} == "true" ]]; then
   if [[ ${swarm} == "true" ]]; then
     simulation_config="sim_config/world_swarm.json"
-    drone_ns=('drone_sim_0' 'drone_sim_1' 'drone_sim_2')
   else
     simulation_config="sim_config/world.json" 
-    drone_ns=('drone_sim_0')
   fi
-else
-  if [[ ${swarm} == "true" ]]; then
-    drone_ns=('cf0' 'cf1' 'cf2')
-  else 
-    drone_ns=('cf0')
-  fi  
 fi
+
+if [[ ${swarm} == "true" ]]; then
+  drone_ns=('cf0' 'cf1' 'cf2')
+else 
+  drone_ns=('cf0')
+fi
+
 
 for ns in "${drone_ns[@]}"
 do
@@ -92,6 +91,9 @@ if [[ ${simulated} == "true" ]]; then
   tmuxinator start -n gazebo -p utils/gazebo.yml simulation_config=${simulation_config} &
   wait
 fi
+
+# Attach to tmux session ${drone_ns[@]}, window 0
+tmux attach-session -t ${drone_ns[0]}:mission
 
 tmux a
 pkill -9 -f "gazebo"

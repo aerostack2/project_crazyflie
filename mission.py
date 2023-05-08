@@ -1,13 +1,10 @@
 #!/bin/python3
 
 from time import sleep
-import rclpy
 import argparse
+import rclpy
 from as2_python_api.drone_interface import DroneInterface
 
-parser = argparse.ArgumentParser(
-    description="Starts gates mission for crazyswarm in either simulation or real environment")
-parser.add_argument('-s', '--simulated', action='store_true', default=False)
 
 def drone_run(drone_interface: DroneInterface):
     """ Run the mission """
@@ -53,20 +50,25 @@ def drone_run(drone_interface: DroneInterface):
 
     drone_interface.disarm()
 
+
 if __name__ == '__main__':
 
-    if parser.parse_args().simulated:
+    parser = argparse.ArgumentParser(
+        description="Starts gates mission for crazyswarm in either simulation or real environment")
+    parser.add_argument('-s', '--simulated',
+                        action='store_true', default=False)
+
+    args = parser.parse_args()
+
+    if args.simulated:
         print("Mission running in simulation mode")
-        uav_name = "drone_sim_0"
-        sim = True
     else:
         print("Mission running in real mode")
-        uav_name = "cf0"
-        sim = False        
 
     rclpy.init()
-    
-    uav = DroneInterface(uav_name, verbose=False, use_sim_time=sim)
+
+    uav = DroneInterface(drone_id="cf0", verbose=False,
+                         use_sim_time=args.simulated)
 
     drone_run(uav)
 

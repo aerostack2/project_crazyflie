@@ -13,21 +13,17 @@ parser = argparse.ArgumentParser(
     description="Starts gates mission for crazyswarm in either simulation or real environment")
 parser.add_argument('-s', '--simulated', action='store_true', default=False)
 
-sim = False
-
 if parser.parse_args().simulated:
     print("Mission running in simulation mode")
-    drones_ns = [
-        'drone_sim_0',
-        'drone_sim_1',
-        'drone_sim_2']
     sim = True
 else:
     print("Mission running in real mode")
-    drones_ns = [
-        'cf0',
-        'cf1',
-        'cf2']
+    sim = False
+
+drones_ns = [
+    'cf0',
+    'cf1',
+    'cf2']
 
 speed = 0.5
 ingore_yaw = True
@@ -157,7 +153,8 @@ if __name__ == '__main__':
     rclpy.init()
     uavs = []
     for i in range(len(drones_ns)):
-        uavs.append(DroneInterface(drones_ns[i], use_sim_time=sim, verbose=True))
+        uavs.append(DroneInterface(
+            drones_ns[i], use_sim_time=sim, verbose=True))
 
     print("Takeoff")
     confirm(uavs, "Takeoff")

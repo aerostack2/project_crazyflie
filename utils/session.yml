@@ -11,8 +11,6 @@ use_keyboard_teleop = @settings["launch_keyboard_teleop"] == "true"
 record_rosbag       = @settings["record_rosbag"] == "true"
 
 # Other parameters
-behavior_type       = "position"
-
 if estimator_plugin == "mocap_pose"
     using_optitrack = true
     platform_config_file = "real_config/platform_config_mocap.yaml"
@@ -74,34 +72,24 @@ windows:
         - ros2 launch as2_motion_controller controller_launch.py
             namespace:=<%= drone_namespace %>
             use_sim_time:=<%= simulation %>
-            cmd_freq:=100.0
-            info_freq:=10.0
             plugin_name:=pid_speed_controller
-            use_bypass:=<%= use_bypass %>
-            plugin_config_file:=<%= config_path %>/controller.yaml     
+            motion_controller_config_file:=<%= config_path %>/motion_controller.yaml
+            plugin_config_file:=<%= config_path %>/motion_controller_plugin.yaml     
   - behaviors:
       layout:
       panes:
-        - ros2 launch as2_behaviors_motion motion_behaviors_launch.py
+        - ros2 launch as2_behaviors_motion takeoff_behavior_launch.py
             namespace:=<%= drone_namespace %>
             use_sim_time:=<%= simulation %>
-            follow_path_plugin_name:=follow_path_plugin_<%= behavior_type %>
-            go_to_plugin_name:=go_to_plugin_<%= behavior_type %>
-            takeoff_plugin_name:=takeoff_plugin_<%= behavior_type %>
-            land_plugin_name:=land_plugin_speed
-        <%- if not simulation %>
-            follow_path_threshold:=0.3
-            land_speed_condition_height:=0.2
-            land_speed_condition_percentage:=0.2
-        <%- end %>
-        - ros2 launch as2_behaviors_motion follow_reference_behavior_launch.py
+            plugin_name:=takeoff_plugin_position
+        - ros2 launch as2_behaviors_motion land_behavior_launch.py
             namespace:=<%= drone_namespace %>
             use_sim_time:=<%= simulation %>
-        <%- if behavior_type == "trajectory" %>
-        - ros2 launch as2_behaviors_trajectory_generation generate_polynomial_trajectory_behavior_launch.py
+            plugin_name:=land_plugin_speed
+        - ros2 launch as2_behaviors_motion go_to_behavior_launch.py
             namespace:=<%= drone_namespace %>
             use_sim_time:=<%= simulation %>
-        <%- end %>
+            plugin_name:=go_to_plugin_position
   <%- if use_keyboard_teleop and base_launch %>
   - keyboard_teleop:
       layout:
@@ -116,7 +104,9 @@ windows:
       panes:
         - ./rosbag/record_rosbag.bash <%= drone_namespace %>
   <%- end %>
+  <%- if base_launch %>
   - mission:
       layout:
       panes:
-        - 
+        - echo Run here the mission
+  <%- end %>
