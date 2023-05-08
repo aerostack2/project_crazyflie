@@ -63,15 +63,11 @@ launch_keyboard_teleop=${launch_keyboard_teleop:="false"}
 if [[ ${simulated} == "true" ]]; then
   if [[ ${swarm} == "true" ]]; then
     simulation_config="sim_config/world_swarm.json"
+    num_drones=3
   else
-    simulation_config="sim_config/world.json" 
+    simulation_config="sim_config/world.json"
+    num_drones=1
   fi
-fi
-
-if [[ ${swarm} == "true" ]]; then
-  num_drones=3
-else 
-  num_drones=1
 fi
 
 # Generate the list of drone namespaces
