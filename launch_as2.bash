@@ -5,7 +5,7 @@ usage() {
     echo ""
     echo "  options:"
     echo "      -s: simulated, choices: [true | false]"
-    echo "      -w: swarm, choices: [true | false]"
+    echo "      -m: multi agent, choices: [true | false]"
     echo "      -e: estimator_type, choices: [ground_truth, raw_odometry, mocap_pose]"
     echo "      -r: record rosbag"
     echo "      -t: launch keyboard teleoperation"
@@ -13,12 +13,12 @@ usage() {
 }
 
 # Arg parser
-while getopts "se:wrt" opt; do
+while getopts "se:mrt" opt; do
   case ${opt} in
     s )
       simulated="true"
       ;;
-    w )
+    m )
       swarm="true"
       ;;
     e )
@@ -69,11 +69,16 @@ if [[ ${simulated} == "true" ]]; then
 fi
 
 if [[ ${swarm} == "true" ]]; then
-  drone_ns=('cf0' 'cf1' 'cf2')
+  num_drones=3
 else 
-  drone_ns=('cf0')
+  num_drones=1
 fi
 
+# Generate the list of drone namespaces
+drone_ns=()
+for ((i=0; i<num_drones; i++)); do
+  drone_ns+=("cf$i")
+done
 
 for ns in "${drone_ns[@]}"
 do
