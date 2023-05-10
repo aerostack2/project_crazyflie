@@ -1,88 +1,110 @@
 #!/bin/bash
 
-# Arguments
-drone_namespace=$1
-if [ -z "$drone_namespace" ]; then
-    drone_namespace="cf"
+usage() {
+    echo "  options:"
+    echo "      -s: simulated, choices: [true | false]"
+    echo "      -m: multi agent, choices: [true | false]"
+    echo "      -e: estimator_type, choices: [ground_truth, raw_odometry, mocap_pose]"
+    echo "      -r: record rosbag"
+    echo "      -t: launch keyboard teleoperation"
+    echo "      -n: drone namespace, default is cf0"
+}
+
+# Arg parser
+while getopts "se:mrtn" opt; do
+  case ${opt} in
+    s )
+      simulated="true"
+      ;;
+    m )
+      swarm="true"
+      ;;
+    e )
+      estimator_plugin="${OPTARG}"
+      ;;
+    r )
+      record_rosbag="true"
+      ;;
+    t )
+      launch_keyboard_teleop="true"
+      ;;
+    n )
+      drone_namespace="${OPTARG}"
+      ;;
+    \? )
+      echo "Invalid option: -$OPTARG" >&2
+      usage
+      exit 1
+      ;;
+    : )
+      if [[ ! $OPTARG =~ ^[swrt]$ ]]; then
+        echo "Option -$OPTARG requires an argument" >&2
+        usage
+        exit 1
+      fi
+      ;;
+  esac
+done
+
+source utils/tools.bash
+
+# Shift optional args
+shift $((OPTIND -1))
+
+## DEFAULTS
+simulated=${simulated:="false"}  # default ign_gz
+if [[ ${simulated} == "false" && -z ${estimator_plugin} ]]; then
+  echo "Error: when -s is false, -e argument must be set" 1>&2
+  usage
+  exit 1
 fi
-cf_uri=$2
-if [ -z "$cf_uri" ]; then
-    cf_uri="radio://0/80/2M/E7E7E7E7E7"
-fi
-run_mocap=$3
-if [ -z "$run_mocap" ]; then
-    run_mocap="false"
-fi
 
-behavior_type="position" # "position" or "trajectory"
-launch_bt="false" # "true" or "false"
-using_optitrack="false" # "true" or "false"
-cf_uri="radio://0/80/2M/E7E7E7E703"
-aideck_ip="192.168.0.140"
-aideck_port="5000"
+swarm=${swarm:="false"}
+estimator_plugin=${estimator_plugin:="ground_truth"}  # default ign_gz
+record_rosbag=${record_rosbag:="false"}
+launch_keyboard_teleop=${launch_keyboard_teleop:="false"}
+drone_namespace=${drone_namespace:="cf"}
 
-source ./utils/launch_tools.bash
-
-new_session $drone_namespace
-
-new_window 'crazyflie_platform' "ros2 launch as2_crazyflie_platform crazyflie_platform_launch.py \
-    drone_id:=$drone_namespace \
-    drone_URI:=$cf_uri \
-    estimator_type:=2 \
-    controller_type:=1"
-
-new_window 'as2_controller_manager' "ros2 launch as2_controller_manager controller_manager_launch.py \
-    namespace:=$drone_namespace \
-    cmd_freq:=100.0 \
-    info_freq:=10.0 \
-    use_bypass:=false \
-    plugin_name:=controller_plugin_speed_controller \
-    plugin_config_file:=drone_config/controller.yaml"
-
-if [[ "$using_optitrack" == "true" ]]
-then
-    if [ "$run_mocap" = "true" ]; then
-        new_window 'mocap' "ros2 launch mocap_optitrack mocap.launch.py  namespace:=$drone_namespace"
-    fi
-
-    new_window 'as2_state_estimator' "ros2 launch as2_state_estimator state_estimator_launch.py \
-        namespace:=$drone_namespace \
-        plugin_name:=as2_state_estimator_plugin_mocap"
+if [[ ${swarm} == "true" ]]; then
+  num_drones=3
+  simulation_config="sim_config/world_swarm.json"
 else
-    new_window 'as2_state_estimator' "ros2 launch as2_state_estimator state_estimator_launch.py \
-        namespace:=$drone_namespace \
-        plugin_name:=as2_state_estimator_plugin_external_odom"
+  num_drones=1
+  simulation_config="sim_config/world.json"
 fi
 
-new_window 'as2_platform_behaviors' "ros2 launch as2_platform_behaviors as2_platform_behaviors_launch.py \
-    namespace:=$drone_namespace \
-    follow_path_plugin_name:=follow_path_plugin_$behavior_type \
-    goto_plugin_name:=goto_plugin_$behavior_type \
-    takeoff_plugin_name:=takeoff_plugin_$behavior_type \
-    land_plugin_name:=land_plugin_speed"
+# Generate the list of drone namespaces
+drone_ns=()
+for ((i=0; i<${num_drones}; i++)); do
+  drone_ns+=("$drone_namespace$i")
+done
 
-if [[ "$behavior_type" == "trajectory" ]]
-then
-    new_window 'traj_generator' "ros2 launch trajectory_generator trajectory_generator_launch.py  \
-        namespace:=$drone_namespace"
+for ns in "${drone_ns[@]}"
+do
+  if [[ ${ns} == ${drone_ns[0]} ]]; then
+    base_launch="true"
+  else
+    base_launch="false"
+  fi 
+
+  tmuxinator start -n ${ns} -p utils/session.yml drone_namespace=${ns} base_launch=${base_launch}  estimator_plugin=${estimator_plugin} simulation=${simulated} simulation_config=${simulation_config} &
+  wait
+done
+
+if [[ ${record_rosbag} == "true" ]]; then
+  tmuxinator start -n rosbag -p utils/rosbag.yml drone_namespace=$(list_to_string "${drone_ns[@]}") &
+  wait
 fi
 
-new_window 'teleop' "ros2 launch keyboard_teleoperation keyboard_teleoperation.launch.py \
-    drone_id:=$drone_namespace \
-    verbose:=true"
-
-new_window 'viewer' "gnome-terminal -x bash -c '\
-    ros2 run alphanumeric_viewer alphanumeric_viewer_node --ros-args -r  __ns:=/$drone_namespace'"
-
-if [[ "$launch_bt" == "true" ]] 
-then
-    new_window 'mission_planner' "ros2 launch behaviour_trees behaviour_trees.launch.py \
-    drone_id:=$drone_namespace \
-    groot_logger:=true \
-    tree:=trees/go.xml"
-
-    new_window 'groot' "$AEROSTACK2_WORKSPACE/build/groot/Groot --mode monitor"
+if [[ ${launch_keyboard_teleop} == "true" ]]; then
+  tmuxinator start -n keyboard_teleop -p utils/keyboard_teleop.yml simulation=true drone_namespace=$(list_to_string "${drone_ns[@]}") &
+  wait
 fi
 
-# echo -e "Launched drone $drone_namespace. For attaching to the session, run: \n  \t $ tmux a -t $drone_namespace"
-tmux a -t :0
+if [[ ${simulated} == "true" ]]; then
+  tmuxinator start -n gazebo -p utils/gazebo.yml simulation_config=${simulation_config} &
+  wait
+fi
+
+# Attach to tmux session ${drone_ns[@]}, window 0
+tmux attach-session -t ${drone_ns[0]}:mission

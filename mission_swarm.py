@@ -3,10 +3,27 @@
 import rclpy
 import sys
 import threading
+import argparse
 from typing import List
-from python_interface.drone_interface import DroneInterface
+from as2_python_api.drone_interface import DroneInterface
 
 # pos= [[1,0,1],[-1,1,1.5],[-1,-1,2.0]]
+
+parser = argparse.ArgumentParser(
+    description="Starts gates mission for crazyswarm in either simulation or real environment")
+parser.add_argument('-s', '--simulated', action='store_true', default=False)
+
+if parser.parse_args().simulated:
+    print("Mission running in simulation mode")
+    sim = True
+else:
+    print("Mission running in real mode")
+    sim = False
+
+drones_ns = [
+    'cf0',
+    'cf1',
+    'cf2']
 
 speed = 0.5
 ingore_yaw = True
@@ -48,10 +65,6 @@ pos0 = [v2, v1, v0, v2, v5, v4, v3, v5, v8, v7, v6, v8, v2, l0]
 pos1 = [v0, v2, v1, v0, v4, v3, v5, v4, v6, v8, v7, v6, v0, l1]
 pos2 = [v1, v0, v2, v1, v3, v5, v4, v3, v7, v6, v8, v7, v1, l2]
 
-drones_ns = [
-    'cf0',
-    'cf1',
-    'cf2']
 # drones_ns=['cf0','cf1']
 # drones_ns=['cf1']
 
@@ -102,8 +115,8 @@ def land(drone_interface: DroneInterface):
 
 
 def go_to(drone_interface: DroneInterface):
-    drone_interface.go_to_point(pose_generator(
-        drone_interface), speed=speed, ignore_yaw=ingore_yaw)
+    drone_interface.go_to.go_to_point(pose_generator(
+        drone_interface), speed=speed)
 
 
 def confirm(uavs: List[DroneInterface], msg: str = 'Continue') -> bool:
@@ -140,7 +153,8 @@ if __name__ == '__main__':
     rclpy.init()
     uavs = []
     for i in range(len(drones_ns)):
-        uavs.append(DroneInterface(drones_ns[i], verbose=True))
+        uavs.append(DroneInterface(
+            drones_ns[i], use_sim_time=sim, verbose=True))
 
     print("Takeoff")
     confirm(uavs, "Takeoff")
