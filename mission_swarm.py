@@ -106,8 +106,8 @@ def drone_run(drone_interface0: DroneInterface, drone_interface1: DroneInterface
 
     if confirm([drone_interface0], "reference"):
         print('going to reference')
-        drone_interface0.follow_reference.follow_reference_with_yaw(1.0, 0, 1.0, 'point_0', 0.5, 0.5, 0.5, 3.14)
-        drone_interface1.follow_reference.follow_reference_with_yaw(-1.0, 0, 1.0, 'point_0', 0.5, 0.5, 0.5, 0.0)
+        drone_interface0.follow_reference.follow_reference_with_yaw(2.0, 0, 1.0, 'point_0', 1.0, 1.0, 1.0, 3.14)
+        drone_interface1.follow_reference.follow_reference_with_yaw(-2.0, 0, 1.0, 'point_0', 1.0, 1.0, 1.0, 0.0)
     
     if confirm([drone_interface0], "stop reference"):
         drone_interface0.follow_reference.stop()
