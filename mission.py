@@ -28,26 +28,26 @@ def land(drone_interface: DroneInterface):
     # ]
     drone_interface.land(0.5)
 
-def follow_reference(drone_interface: DroneInterface):
-    drone_interface.follow_reference = FollowReferenceModule(drone_interface)
-    if drone_interface.drone_id == drones_ns[0]:
-        drone_interface.follow_reference.follow_reference_with_yaw(0.0, -1.0, 0, 'object', 1.0, 1.0, 1.0, 0.0)
-    elif drone_interface.drone_id == drones_ns[1]:
-        drone_interface.follow_reference.follow_reference_with_yaw(0.0, 1.0, 0, 'object', 1.0, 1.0, 1.0, 3.14)
+# def follow_reference(drone_interface: DroneInterface):
+#     drone_interface.follow_reference = FollowReferenceModule(drone_interface)
+#     if drone_interface.drone_id == drones_ns[0]:
+#         drone_interface.follow_reference.follow_reference_with_yaw(0.0, -1.0, 0, 'object', 1.0, 1.0, 1.0, 0.0)
+#     elif drone_interface.drone_id == drones_ns[1]:
+#         drone_interface.follow_reference.follow_reference_with_yaw(0.0, 1.0, 0, 'object', 1.0, 1.0, 1.0, 3.14)
 
-def stop_follow_reference(drone_interface: DroneInterface):
-    if drone_interface.drone_id == drones_ns[0]:
-        drone_interface.follow_reference.stop()
-    elif drone_interface.drone_id == drones_ns[1]:
-        drone_interface.follow_reference.stop()
+# def stop_follow_reference(drone_interface: DroneInterface):
+#     if drone_interface.drone_id == drones_ns[0]:
+#         drone_interface.follow_reference.stop()
+#     elif drone_interface.drone_id == drones_ns[1]:
+#         drone_interface.follow_reference.stop()
 
-def follow_reference_uavs(uavs):
-    run_func(uavs, follow_reference)
-    return
+# def follow_reference_uavs(uavs):
+#     run_func(uavs, follow_reference)
+#     return
 
-def stop_follow_reference_uavs(uavs):
-    run_func(uavs, stop_follow_reference)
-    return
+# def stop_follow_reference_uavs(uavs):
+#     run_func(uavs, stop_follow_reference)
+#     return
 
 def go_to(drone_interface: DroneInterface):
     if (drone_interface.drone_id == drones_ns[0]):
