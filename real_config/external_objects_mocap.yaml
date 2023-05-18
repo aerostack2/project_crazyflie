@@ -1,0 +1,5 @@
+---
+objects:
+- type: pose
+  frame: object_0
+  pose_topic: "/object_0/ground_truth/pose"  
