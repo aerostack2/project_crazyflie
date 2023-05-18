@@ -91,6 +91,11 @@ do
   wait
 done
 
+if [[ ${estimator_plugin} == "mocap_pose" ]]; then
+  tmuxinator start -n mocap -p utils/mocap.yml &
+  wait
+fi
+
 if [[ ${record_rosbag} == "true" ]]; then
   tmuxinator start -n rosbag -p utils/rosbag.yml drone_namespace=$(list_to_string "${drone_ns[@]}") &
   wait
