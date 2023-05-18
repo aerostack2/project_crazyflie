@@ -1,0 +1,6 @@
+---
+objects:
+  - type: pose
+    parent_frame: earth
+    frame: point_0
+    pose_topic: "/object/ground_truth/pose"

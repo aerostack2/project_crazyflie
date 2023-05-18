@@ -1,9 +1,0 @@
-{
-    "objects": [
-        {
-            "type": "pose",
-            "frame": "point_0",
-            "pose_topic": "/object/ground_truth/pose"
-        }
-    ]
-}
