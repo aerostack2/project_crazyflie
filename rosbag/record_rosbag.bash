@@ -23,6 +23,8 @@ for drone_namespace in "${drone_namespaces[@]}"; do
                 /${drone_namespace}/actuator_command/twist"
 done
 
+rosbag_cmd+=" /object/ground_truth/pose"
+
 # Add remaining topics
 rosbag_cmd+=" /tf /tf_static --include-hidden-topics"
 
