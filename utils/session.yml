@@ -46,6 +46,14 @@ windows:
             platform_config_file:=<%= platform_config_file %>
             swarm_config_file:=real_config/swarm_config_file.yaml
   <%- end %>
+  <%- if base_launch and estimator_plugin=="mocap_pose" %>
+  - mocap:
+      layout:
+      panes:
+        - ros2 launch mocap_optitrack mocap.launch.py
+            namespace:=optitrack
+            config_file:=real_config/mocap.yaml
+  <%- end %>
   - state_estimator:
       layout:
       panes:
