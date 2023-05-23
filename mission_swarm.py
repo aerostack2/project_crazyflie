@@ -1,97 +1,79 @@
 #!/bin/python3
 
-import rclpy
 import sys
-import threading
 import argparse
+import time
+import threading
 from typing import List
+import math
+import rclpy
+from gates import Gates
+from copy import deepcopy
+from tf2_ros.buffer_interface import TransformRegistration
+from tf2_geometry_msgs import PointStamped, TransformStamped
 from as2_python_api.drone_interface import DroneInterface
 
 # pos= [[1,0,1],[-1,1,1.5],[-1,-1,2.0]]
-
-parser = argparse.ArgumentParser(
-    description="Starts gates mission for crazyswarm in either simulation or real environment")
+parser=argparse.ArgumentParser(description="Starts gates mission for crazyswarm in either simulation or real environment")
 parser.add_argument('-s', '--simulated', action='store_true', default=False)
 
-if parser.parse_args().simulated:
-    print("Mission running in simulation mode")
-    sim = True
-else:
-    print("Mission running in real mode")
-    sim = False
-
-drones_ns = [
-    'cf0',
-    'cf1',
-    'cf2']
-
-speed = 0.5
+speed = 1.0
 ingore_yaw = True
+height = 2.2
+desp_gates = 0.5
+drones_ns = ['cf0', 'cf1']
 
-h1 = 1.0
-h2 = 1.5
-h3 = 2.0
+if parser.parse_args().simulated:
+    print ("Running mission in simulation mode")
+    position_gate_0 = [0.0, 1.0, 2.0, 0.0, 0.0, 0.0, 1.57] # position and orientation
+    position_gate_1 = [3.0, 1.0, 2.0, 0.0, 0.0, 0.0, 1.57] # position and orientation
+else:
+    print ("Running mission in real mode")
+
+    gates_node = Gates()
+
+    position_gate_0 = gates_node.get_gate_0_pose()
+    position_gate_1 = gates_node.get_gate_1_pose()
+
+    position_gate_0[2] += 0.6
+    position_gate_1[2] += 0.7
+
+    print(position_gate_0)
+    print(position_gate_1)
+
+    gates_node.shutdown()
+
+drone_turn = 0
+
+t_gate_0 = TransformStamped()
+t_gate_1 = TransformStamped()
+
+h_dist = math.sqrt((position_gate_0[0] - position_gate_1[0])
+                   ** 2 + (position_gate_0[1] - position_gate_1[1])**2)
+
+print(h_dist)
+
+v_dist = 4.0
+
+initial_point_rel_gate_0 = [-h_dist/2,
+                            -v_dist/2, 2.0]
+
+initial_point_rel_gate_1 = [h_dist/2,
+                            v_dist/2, 2.0]
+if desp_gates != 0.0:
+
+    poses_rel_gate_0 = [[0.0, -desp_gates,
+                        2.0], [0.0, desp_gates, 2.0]]
+    poses_rel_gate_1 = [[0.0, desp_gates,
+                        2.0], [0.0, -desp_gates, 2.0]]
+else:
+
+    poses_rel_gate_0 = [[0.0, 0.0, 0.0]]
+    poses_rel_gate_1 = [[0.0, 0.0, 0.0]]
 
 
-v0 = [-2, -1, h1]
-v1 = [0, 2, h1]
-v2 = [2, -1, h1]
-
-v3 = [2, 1, h2]
-v4 = [-2, 1, h2]
-v5 = [0, -2, h2]
-
-
-v6 = v0
-v6[2] = h3
-v7 = v1
-v7[2] = h3
-v8 = v2
-v8[2] = h3
-
-
-l0 = [2, 0, 1.0]
-l1 = [-2, 0, 1.0]
-l2 = [0, 0, 1.0]
-
-
-# pos0= [[1,1,1],[1,-1,1.5],[-1,-1,1.0],[-1,0,1]]
-# pos1= [[-1,-1,1],[-1,1,1.5],[1,1,2.0],[1,0,1]]
-# pos2= [[-1,-1,1],[-1,1,1.5],[1,1,2.0],[1,0,1]]
-
-# pos0= [[1,1,1],[1,-1,1.5],[-1,-1,1.0],[-1,0,1]]
-
-pos0 = [v2, v1, v0, v2, v5, v4, v3, v5, v8, v7, v6, v8, v2, l0]
-pos1 = [v0, v2, v1, v0, v4, v3, v5, v4, v6, v8, v7, v6, v0, l1]
-pos2 = [v1, v0, v2, v1, v3, v5, v4, v3, v7, v6, v8, v7, v1, l2]
-
-# drones_ns=['cf0','cf1']
-# drones_ns=['cf1']
-
-n_point_0 = 0
-n_point_1 = 0
-n_point_2 = 0
-
-
-def reset_point():
-    global n_point_0, n_point_1, n_point_2
-    n_point_0 = 0
-    n_point_1 = 0
-    n_point_2 = 0
-
-
-def pose_generator(uav: DroneInterface):
-    global n_point_0, n_point_1, n_point_2
-    if uav.get_namespace()[-1] == '0':
-        ret = pos0[n_point_0]
-        n_point_0 += 1
-    elif uav.get_namespace()[-1] == '1':
-        ret = pos1[n_point_1]
-        n_point_1 += 1
-    elif uav.get_namespace()[-1] == '2':
-        ret = pos2[n_point_2]
-        n_point_2 += 1
-    return ret
+poses_rel_gate_0.append(initial_point_rel_gate_1)
+poses_rel_gate_1.append(initial_point_rel_gate_0)
 
 
 def shutdown_all(uavs):
@@ -106,17 +88,53 @@ def shutdown_all(uavs):
 def takeoff(uav: DroneInterface):
     uav.arm()
     uav.offboard()
-    uav.takeoff(1, 0.7)
-    # sleep(1)
+    uav.takeoff(2.0, 0.7)
+    time.sleep(1)
 
 
 def land(drone_interface: DroneInterface):
-    drone_interface.land(0.4)
+    # position = drone_interface.position
+    # land_position = [
+    #     position[0],
+    #     position[1],
+    #     0.2
+    # ]
+    drone_interface.land(0.5)
+
+
+def follow_path_with_go_to(drone_interface: DroneInterface):
+    path = []
+    if drone_interface.drone_id == drones_ns[0]:
+        if drone_turn == 0:
+            path = poses_rel_gate_0
+            frame = "gate_0"
+        else:
+            path = poses_rel_gate_1
+            frame = "gate_1"
+    elif drone_interface.drone_id == drones_ns[1]:
+        if drone_turn == 0:
+            path = poses_rel_gate_1
+            frame = "gate_1"
+        else:
+            path = poses_rel_gate_0
+            frame = "gate_0"
+    for point in path:
+        drone_interface.go_to.go_to_point_path_facing(
+            point=point, speed=speed, frame=frame)
+    # drone_interface.goto.go_to_point_path_facing(o
+    #     pose_generator(drone_interface), speed=speed)
 
 
 def go_to(drone_interface: DroneInterface):
-    drone_interface.go_to.go_to_point(pose_generator(
-        drone_interface), speed=speed)
+    if (drone_interface.drone_id == drones_ns[0]):
+        point = initial_point_rel_gate_0
+        frame = "gate_0"
+    elif (drone_interface.drone_id == drones_ns[1]):
+        point = initial_point_rel_gate_1
+        frame = "gate_1"
+    drone_interface.go_to.go_to_point_path_facing(
+        point=point, speed=speed, frame_id=frame
+    )
 
 
 def confirm(uavs: List[DroneInterface], msg: str = 'Continue') -> bool:
@@ -141,37 +159,61 @@ def run_func(uavs: List[DroneInterface], func, *args):
     print("all done")
 
 
-def move_uavs(uavs):
-    reset_point()
-    for i in range(len(pos0)):
-        run_func(uavs, go_to)
+def follow_path_with_go_to_uavs(uavs):
+    run_func(uavs, follow_path_with_go_to)
     return
 
+
+def go_to_uavs(uavs):
+    run_func(uavs, go_to)
+    return
+
+
+def join_paths(uavs):
+    global poses_rel_gate_0, poses_rel_gate_1
+    path_gate_0_tmp = deepcopy(poses_rel_gate_0)
+    poses_rel_gate_0.extend(poses_rel_gate_1)
+    poses_rel_gate_1.extend(path_gate_0_tmp)
+    print(poses_rel_gate_0)
+    print(poses_rel_gate_1)
+
+
+def print_status(drone_interface: DroneInterface):
+    while (True):
+        drone_interface.get_logger().info(str(drone_interface.go_to.status))
 
 if __name__ == '__main__':
 
     rclpy.init()
     uavs = []
-    for i in range(len(drones_ns)):
-        uavs.append(DroneInterface(
-            drones_ns[i], use_sim_time=sim, verbose=True))
+    for ns in drones_ns:
+        uavs.append(DroneInterface(ns, verbose=False, use_sim_time=parser.parse_args().simulated))
 
     print("Takeoff")
-    confirm(uavs, "Takeoff")
-    run_func(uavs, takeoff)
-
-    print("Go to")
-    confirm(uavs, "Go to")
-    move_uavs(uavs)
+    if confirm(uavs, "Takeoff"):
+        run_func(uavs, takeoff)
+    print("Initial Go To")
+    if confirm(uavs, "Go To"):
+        go_to_uavs(uavs)
+    print("Follow Path")
+    if confirm(uavs, "Follow Path"):
+        follow_path_with_go_to_uavs(uavs)
+    drone_turn = 1
+    join_counter = 0
     while confirm(uavs, "Replay"):
-        move_uavs(uavs)
+        join_counter += 1
+        if join_counter == 2:
+            join_paths(uavs)
+
+        follow_path_with_go_to_uavs(uavs)
+        if join_counter < 2:
+            drone_turn = abs(drone_turn) - 1
 
     print("Land")
-    confirm(uavs, "Land")
-    run_func(uavs, land)
+    if confirm(uavs, "Land"):
+        run_func(uavs, land)
 
     print("Shutdown")
-    confirm(uavs, "Shutdown")
     rclpy.shutdown()
 
     exit(0)
