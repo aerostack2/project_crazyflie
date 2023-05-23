@@ -5,7 +5,7 @@
             "model_type": "quadrotor_base",
             "model_name": "cf0",
             "xyz": [
-                2.0,
+                -2.0,
                 0.0,
                 0.3
             ],
@@ -20,7 +20,7 @@
             "model_type": "quadrotor_base",
             "model_name": "cf1",
             "xyz": [
-                -2.0,
+                2.0,
                 0.0,
                 0.3
             ],

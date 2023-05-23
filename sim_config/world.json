@@ -5,8 +5,8 @@
             "model_type": "quadrotor_base",
             "model_name": "cf0",
             "xyz": [
-                1.0,
-                1.0,
+                0.5,
+                0.5,
                 0.3
             ],
             "rpy": [
