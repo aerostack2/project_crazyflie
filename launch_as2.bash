@@ -66,7 +66,7 @@ launch_keyboard_teleop=${launch_keyboard_teleop:="false"}
 drone_namespace=${drone_namespace:="cf"}
 
 if [[ ${swarm} == "true" ]]; then
-  num_drones=3
+  num_drones=2
   simulation_config="sim_config/world_swarm.json"
 else
   num_drones=1

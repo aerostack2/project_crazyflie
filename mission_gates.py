@@ -74,80 +74,8 @@ else:
     poses_rel_gate_1 = [[0.0, 0.0, 0.0]]
 
 
-path_gate_0 = []
-path_gate_1 = []
-
-
-def gates_transforms():
-    global t_gate_0, t_gate_1
-
-    t_gate_0.header.frame_id = 'earth'
-    t_gate_0.child_frame_id = 'gate_0'
-    t_gate_0.transform.translation.x = position_gate_0[0]
-    t_gate_0.transform.translation.y = position_gate_0[1]
-    t_gate_0.transform.translation.z = position_gate_0[2]
-    t_gate_0.transform.rotation.x = 0.0
-    t_gate_0.transform.rotation.y = 0.0
-    t_gate_0.transform.rotation.z = position_gate_0[5]
-    t_gate_0.transform.rotation.w = position_gate_0[6]
-
-    t_gate_1.header.frame_id = 'earth'
-    t_gate_1.child_frame_id = 'gate_1'
-    t_gate_1.transform.translation.x = position_gate_1[0]
-    t_gate_1.transform.translation.y = position_gate_1[1]
-    t_gate_1.transform.translation.z = position_gate_1[2]
-    t_gate_1.transform.rotation.x = 0.0
-    t_gate_1.transform.rotation.y = 0.0
-    t_gate_1.transform.rotation.z = position_gate_1[5]
-    t_gate_1.transform.rotation.w = position_gate_1[6]
-
-
-def list_to_point(_l: list):
-    ret = PointStamped()
-    ret.point.x = _l[0]
-    ret.point.y = _l[1]
-    ret.point.z = _l[2]
-
-    return ret
-
-
-def point_to_list(point: PointStamped):
-    ret = []
-    ret.append(point.point.x)
-    ret.append(point.point.y)
-    ret.append(point.point.z)
-
-    return ret
-
-
-def transform_waypoints_from_gates_to_earth():
-    global initial_point_rel_gate_0, initial_point_rel_gate_1
-
-    registration = TransformRegistration()
-    do_transform = registration.get(PointStamped)
-
-    initial_point_rel_gate_0 = point_to_list(do_transform(
-        list_to_point(initial_point_rel_gate_0), t_gate_0))
-    initial_point_rel_gate_1 = point_to_list(do_transform(
-        list_to_point(initial_point_rel_gate_1), t_gate_1))
-
-    # path_gate_0.append(initial_point_rel_gate_0)
-    # path_gate_1.append(initial_point_rel_gate_1)
-
-    for point in poses_rel_gate_0:
-        path_gate_0.append(point_to_list(
-            do_transform(list_to_point(point), t_gate_0)))
-
-    path_gate_0.append(initial_point_rel_gate_1)
-
-    for point in poses_rel_gate_1:
-        path_gate_1.append(point_to_list(
-            do_transform(list_to_point(point), t_gate_1)))
-
-    path_gate_1.append(initial_point_rel_gate_0)
-
-    print(f"Path 0: {path_gate_0}")
-    print(f"Path 1: {path_gate_1}")
+poses_rel_gate_0.append(initial_point_rel_gate_1)
+poses_rel_gate_1.append(initial_point_rel_gate_0)
 
 
 def shutdown_all(uavs):
@@ -180,17 +108,21 @@ def follow_path(drone_interface: DroneInterface):
     path = []
     if drone_interface.drone_id == drones_ns[0]:
         if drone_turn == 0:
-            path = path_gate_0
+            path = poses_rel_gate_0
+            frame = "gate_0"
         else:
-            path = path_gate_1
+            path = poses_rel_gate_1
+            frame = "gate_1"
     elif drone_interface.drone_id == drones_ns[1]:
         if drone_turn == 0:
-            path = path_gate_1
+            path = poses_rel_gate_1
+            frame = "gate_1"
         else:
-            path = path_gate_0
+            path = poses_rel_gate_0
+            frame = "gate_0"
 
-    drone_interface.follow_path.follow_path_with_keep_yaw(
-        path=path, speed=speed)
+    drone_interface.go_to.go_to_point_path_facing(
+        path=path, speed=speed, frame=frame)
     # drone_interface.goto.go_to_point_path_facing(o
     #     pose_generator(drone_interface), speed=speed)
 
@@ -200,7 +132,7 @@ def go_to(drone_interface: DroneInterface):
         point = initial_point_rel_gate_0
     elif (drone_interface.drone_id == drones_ns[1]):
         point = initial_point_rel_gate_1
-    drone_interface.go_to.go_to_point(
+    drone_interface.go_to.go_to_point_path_facing(
         point=point, speed=speed
     )
 
@@ -238,29 +170,25 @@ def go_to_uavs(uavs):
 
 
 def join_paths(uavs):
-    global path_gate_0, path_gate_1
-    path_gate_0_tmp = deepcopy(path_gate_0)
-    path_gate_0.extend(path_gate_1)
-    path_gate_1.extend(path_gate_0_tmp)
-    print(path_gate_0)
-    print(path_gate_1)
+    global poses_rel_gate_0, poses_rel_gate_1
+    path_gate_0_tmp = deepcopy(poses_rel_gate_0)
+    poses_rel_gate_0.extend(poses_rel_gate_1)
+    poses_rel_gate_1.extend(path_gate_0_tmp)
+    print(poses_rel_gate_0)
+    print(poses_rel_gate_1)
 
 
 def print_status(drone_interface: DroneInterface):
     while (True):
         drone_interface.get_logger().info(str(drone_interface.go_to.status))
 
-
 if __name__ == '__main__':
 
-    # rclpy.init()
+    rclpy.init()
     uavs = []
     for ns in drones_ns:
         uavs.append(DroneInterface(ns, verbose=False))
 
-    print("Initial transformations")
-    gates_transforms()
-    transform_waypoints_from_gates_to_earth()
     print("Takeoff")
     if confirm(uavs, "Takeoff"):
         run_func(uavs, takeoff)
