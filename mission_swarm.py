@@ -7,7 +7,6 @@ import threading
 from typing import List
 import math
 import rclpy
-from gates import Gates
 from copy import deepcopy
 from tf2_ros.buffer_interface import TransformRegistration
 from tf2_geometry_msgs import PointStamped, TransformStamped
@@ -23,57 +22,20 @@ height = 2.2
 desp_gates = 0.5
 drones_ns = ['cf0', 'cf1']
 
-if parser.parse_args().simulated:
-    print ("Running mission in simulation mode")
-    position_gate_0 = [0.0, 1.0, 2.0, 0.0, 0.0, 0.0, 1.57] # position and orientation
-    position_gate_1 = [3.0, 1.0, 2.0, 0.0, 0.0, 0.0, 1.57] # position and orientation
-else:
-    print ("Running mission in real mode")
+v_dist = 3.0
 
-    gates_node = Gates()
+initial_point_rel_gate_0 = [-v_dist/2, 0.0, 2.0]
 
-    position_gate_0 = gates_node.get_gate_0_pose()
-    position_gate_1 = gates_node.get_gate_1_pose()
+initial_point_rel_gate_1 = [v_dist/2, 0.0, 2.0]
 
-    position_gate_0[2] += 0.6
-    position_gate_1[2] += 0.7
-
-    print(position_gate_0)
-    print(position_gate_1)
-
-    gates_node.shutdown()
-
-drone_turn = 0
-
-t_gate_0 = TransformStamped()
-t_gate_1 = TransformStamped()
-
-h_dist = math.sqrt((position_gate_0[0] - position_gate_1[0])
-                   ** 2 + (position_gate_0[1] - position_gate_1[1])**2)
-
-print(h_dist)
-
-v_dist = 4.0
-
-initial_point_rel_gate_0 = [-h_dist/2,
-                            -v_dist/2, 2.0]
-
-initial_point_rel_gate_1 = [h_dist/2,
-                            v_dist/2, 2.0]
 if desp_gates != 0.0:
+    path_0 = [{"gate_0":[-desp_gates, 0.0, 2.0]}, {"gate_0":[desp_gates, 0.0 ,2.0]}, {"gate_1": initial_point_rel_gate_1}]
+    path_1 = [{"gate_1":[desp_gates, 0.0, 2.0]}, {"gate_1":[-desp_gates, 0.0 ,2.0]}, {"gate_0": initial_point_rel_gate_0}]
 
-    poses_rel_gate_0 = [[0.0, -desp_gates,
-                        2.0], [0.0, desp_gates, 2.0]]
-    poses_rel_gate_1 = [[0.0, desp_gates,
-                        2.0], [0.0, -desp_gates, 2.0]]
 else:
 
-    poses_rel_gate_0 = [[0.0, 0.0, 0.0]]
-    poses_rel_gate_1 = [[0.0, 0.0, 0.0]]
-
-
-poses_rel_gate_0.append(initial_point_rel_gate_1)
-poses_rel_gate_1.append(initial_point_rel_gate_0)
+    path_0 = [{"gate_0":[0.0, 0.0 , 2.0]}, {"gate_1": initial_point_rel_gate_1}]
+    path_1 = [{"gate_1":[0.0, 0.0 , 2.0]}, {"gate_0": initial_point_rel_gate_0}]
 
 
 def shutdown_all(uavs):
@@ -101,31 +63,35 @@ def land(drone_interface: DroneInterface):
     # ]
     drone_interface.land(0.5)
 
-
 def follow_path_with_go_to(drone_interface: DroneInterface):
-    path = []
     if drone_interface.drone_id == drones_ns[0]:
-        if drone_turn == 0:
-            path = poses_rel_gate_0
-            frame = "gate_0"
-        else:
-            path = poses_rel_gate_1
-            frame = "gate_1"
+        for frame_dict in path_0:
+            for frame, point in frame_dict.items():
+                drone_interface.go_to.go_to_point_path_facing(
+                    point=point, speed=speed, frame_id=frame)
+            
+        for frame_dict in path_1:
+            for frame, point in frame_dict.items():
+                drone_interface.go_to.go_to_point_path_facing(
+                    point=point, speed=speed, frame_id=frame)
+            
     elif drone_interface.drone_id == drones_ns[1]:
-        if drone_turn == 0:
-            path = poses_rel_gate_1
-            frame = "gate_1"
-        else:
-            path = poses_rel_gate_0
-            frame = "gate_0"
-    for point in path:
-        drone_interface.go_to.go_to_point_path_facing(
-            point=point, speed=speed, frame=frame)
+        for frame_dict in path_1:
+            for frame, point in frame_dict.items():
+                drone_interface.go_to.go_to_point_path_facing(
+                    point=point, speed=speed, frame_id=frame)
+            
+        for frame_dict in path_0:
+            for frame, point in frame_dict.items():
+                drone_interface.go_to.go_to_point_path_facing(
+                    point=point, speed=speed, frame_id=frame)
+
+        
     # drone_interface.goto.go_to_point_path_facing(o
     #     pose_generator(drone_interface), speed=speed)
 
 
-def go_to(drone_interface: DroneInterface):
+def initial_go_to(drone_interface: DroneInterface):
     if (drone_interface.drone_id == drones_ns[0]):
         point = initial_point_rel_gate_0
         frame = "gate_0"
@@ -164,18 +130,9 @@ def follow_path_with_go_to_uavs(uavs):
     return
 
 
-def go_to_uavs(uavs):
-    run_func(uavs, go_to)
+def initial_go_to_uavs(uavs):
+    run_func(uavs, initial_go_to)
     return
-
-
-def join_paths(uavs):
-    global poses_rel_gate_0, poses_rel_gate_1
-    path_gate_0_tmp = deepcopy(poses_rel_gate_0)
-    poses_rel_gate_0.extend(poses_rel_gate_1)
-    poses_rel_gate_1.extend(path_gate_0_tmp)
-    print(poses_rel_gate_0)
-    print(poses_rel_gate_1)
 
 
 def print_status(drone_interface: DroneInterface):
@@ -194,20 +151,12 @@ if __name__ == '__main__':
         run_func(uavs, takeoff)
     print("Initial Go To")
     if confirm(uavs, "Go To"):
-        go_to_uavs(uavs)
+        initial_go_to_uavs(uavs)
     print("Follow Path")
     if confirm(uavs, "Follow Path"):
         follow_path_with_go_to_uavs(uavs)
-    drone_turn = 1
-    join_counter = 0
     while confirm(uavs, "Replay"):
-        join_counter += 1
-        if join_counter == 2:
-            join_paths(uavs)
-
         follow_path_with_go_to_uavs(uavs)
-        if join_counter < 2:
-            drone_turn = abs(drone_turn) - 1
 
     print("Land")
     if confirm(uavs, "Land"):
