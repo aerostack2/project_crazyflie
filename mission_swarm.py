@@ -101,8 +101,8 @@ def drone_run(drone_interface0: DroneInterface, drone_interface1: DroneInterface
         print("Take Off done")
 
     if confirm([drone_interface0], "go to initial position"):
-        drone_interface0.go_to.go_to_point(point=[0.0, -1.0, 3.0], speed=0.5)
-        drone_interface1.go_to.go_to_point(point=[0.0, 1.0, 3.0], speed=0.5)
+        drone_interface0.go_to.go_to_point(point=[-1.0, 0.0, 3.0], speed=0.5, frame_id="point_0")
+        drone_interface1.go_to.go_to_point(point=[1.0, 0.0, 3.0], speed=0.5, frame_id="point_0")
 
     if confirm([drone_interface0], "reference"):
         print('going to reference')
@@ -137,8 +137,8 @@ if __name__ == '__main__':
     rclpy.init()
 
     uav_name = ["cf0", "cf1"]
-    uav_0 = DroneInterface(uav_name[0], verbose=False, use_sim_time=False)
-    uav_1 = DroneInterface(uav_name[1], verbose=False, use_sim_time=False)
+    uav_0 = DroneInterface(uav_name[0], verbose=False, use_sim_time=True)
+    uav_1 = DroneInterface(uav_name[1], verbose=False, use_sim_time=True)
     drone_run(uav_0, uav_1)
 
     uav_0.shutdown()
