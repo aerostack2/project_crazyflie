@@ -1,0 +1,6 @@
+---
+objects:
+  - type: pose
+    parent_frame: earth
+    frame: point_0
+    pose_topic: "/gate_0/gate_0/pose"
