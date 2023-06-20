@@ -17,13 +17,11 @@ def drone_run(drone_interface: DroneInterface):
 
     dim = 1.0
     path = [
-        [dim, dim, height],
-        [dim, -dim, height],
         [-dim, dim, height],
         [-dim, -dim, height],
-        [0.0, 0.0, takeoff_height],
+        [dim, -dim, height],
+        [dim, dim, height]
     ]
-
     print("Start mission")
 
     ##### ARM OFFBOARD #####
