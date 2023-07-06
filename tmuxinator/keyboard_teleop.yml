@@ -1,6 +1,6 @@
 <%
 # Input parameters
-simulation = @settings["simulation"]
+simulation = @settings["simulation"] == "true"
 drone_namespace = @settings["drone_namespace"]
 %>
 
