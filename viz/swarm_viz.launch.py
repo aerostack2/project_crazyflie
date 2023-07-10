@@ -9,7 +9,7 @@ from launch.substitutions import LaunchConfiguration
 
 
 def generate_launch_description():
-    rviz_config = os.path.join(os.getcwd(), 'rviz', 'swarm_config.rviz')
+    rviz_config = os.path.join(os.getcwd(), 'viz', 'swarm_config.rviz')
     print(rviz_config)
     drone_0 = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
