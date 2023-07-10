@@ -9,22 +9,21 @@ from launch.substitutions import LaunchConfiguration
 
 
 def generate_launch_description():
-    rviz_config = os.path.join(os.getcwd(), 'swarm_config.rviz')
-    print(f'{os.path.isfile(rviz_config)=}')
+    rviz_config = os.path.join(os.getcwd(), 'rviz', 'swarm_config.rviz')
     print(rviz_config)
     drone_0 = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
             get_package_share_directory('as2_viz'), 'launch'),
             '/as2_viz.launch.py']),
         launch_arguments={'rviz_config': rviz_config,
-                          'namespace': 'drone0', 'color': 'green',
+                          'namespace': 'cf0', 'color': 'green',
                           'record_length': LaunchConfiguration('record_length')}.items(),
     )
     drone_1 = IncludeLaunchDescription(
         PythonLaunchDescriptionSource([os.path.join(
             get_package_share_directory('as2_viz'), 'launch'),
             '/as2_viz.launch.py']),
-        launch_arguments={'namespace': 'drone1',
+        launch_arguments={'namespace': 'cf1',
                           'rviz': 'false', 'color': 'blue',
                           'record_length': LaunchConfiguration('record_length')}.items(),
 
@@ -33,7 +32,7 @@ def generate_launch_description():
         PythonLaunchDescriptionSource([os.path.join(
             get_package_share_directory('as2_viz'), 'launch'),
             '/as2_viz.launch.py']),
-        launch_arguments={'namespace': 'drone2',
+        launch_arguments={'namespace': 'cf2',
                           'rviz': 'false', 'color': 'red',
                           'record_length': LaunchConfiguration('record_length')}.items(),
     )

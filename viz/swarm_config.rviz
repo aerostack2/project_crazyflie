@@ -58,7 +58,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /drone0/robot_description
+        Value: /cf0/robot_description
       Enabled: true
       Links:
         All Links Enabled: true
@@ -95,7 +95,7 @@ Visualization Manager:
         Inertia: false
         Mass: false
       Name: RobotModel
-      TF Prefix: drone0
+      TF Prefix: cf0
       Update Interval: 0
       Value: true
       Visual Enabled: true
@@ -103,14 +103,14 @@ Visualization Manager:
       Enabled: true
       Name: Marker
       Namespaces:
-        am: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /viz/drone0/reference_pose
+        Value: /viz/cf0/reference_pose
       Value: true
     - Alpha: 1
       Buffer Length: 1
@@ -138,7 +138,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /viz/drone0/last_poses
+        Value: /viz/cf0/last_poses
       Value: true
     - Alpha: 1
       Class: rviz_default_plugins/RobotModel
@@ -150,7 +150,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /drone1/robot_description
+        Value: /cf1/robot_description
       Enabled: true
       Links:
         All Links Enabled: true
@@ -187,7 +187,7 @@ Visualization Manager:
         Inertia: false
         Mass: false
       Name: RobotModel
-      TF Prefix: drone1
+      TF Prefix: cf1
       Update Interval: 0
       Value: true
       Visual Enabled: true
@@ -195,14 +195,14 @@ Visualization Manager:
       Enabled: true
       Name: Marker
       Namespaces:
-        am: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /viz/drone1/reference_pose
+        Value: /viz/cf1/reference_pose
       Value: true
     - Alpha: 1
       Buffer Length: 1
@@ -230,7 +230,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /viz/drone1/last_poses
+        Value: /viz/cf1/last_poses
       Value: true
     - Alpha: 1
       Class: rviz_default_plugins/RobotModel
@@ -242,7 +242,7 @@ Visualization Manager:
         Durability Policy: Volatile
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /drone2/robot_description
+        Value: /cf2/robot_description
       Enabled: true
       Links:
         All Links Enabled: true
@@ -279,7 +279,7 @@ Visualization Manager:
         Inertia: false
         Mass: false
       Name: RobotModel
-      TF Prefix: drone2
+      TF Prefix: cf2
       Update Interval: 0
       Value: true
       Visual Enabled: true
@@ -287,14 +287,14 @@ Visualization Manager:
       Enabled: true
       Name: Marker
       Namespaces:
-        am: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /viz/drone2/reference_pose
+        Value: /viz/cf2/reference_pose
       Value: true
     - Alpha: 1
       Buffer Length: 1
@@ -322,7 +322,7 @@ Visualization Manager:
         Filter size: 10
         History Policy: Keep Last
         Reliability Policy: Reliable
-        Value: /viz/drone2/last_poses
+        Value: /viz/cf2/last_poses
       Value: true
   Enabled: true
   Global Options:
@@ -406,5 +406,5 @@ Window Geometry:
   Views:
     collapsed: false
   Width: 1717
-  X: 89
-  Y: 120
+  X: 308
+  Y: 238
