@@ -12,15 +12,14 @@ simulation_config   = @settings["simulation_config"]
 behavior_type       = "position"
 
 if estimator_plugin == "mocap_pose"
-    platform_config_file = "real_config/platform_config_mocap.yaml"
+    config_file = "config/crazyflie_mocap_config.yaml"
+    controller_plugin_config = "config/cf_motion_controller_plugin.yaml"
 elsif estimator_plugin == "raw_odometry"
-    platform_config_file = "real_config/platform_config_flowdeck.yaml"
-end
-
-if simulation
-    config_path     = "sim_config"
-else
-    config_path     = "real_config"
+    config_file = "config/crazyflie_flowdeck_config.yaml"
+    controller_plugin_config = "config/cf_motion_controller_plugin.yaml"
+elsif estimator_plugin == "ground_truth"
+    config_file = "config/gz_platform_config.yaml"
+    controller_plugin_config = "config/gz_motion_controller_plugin.yaml"
 end
 
 %>
@@ -46,8 +45,8 @@ windows:
       layout: tiled
       panes:
         - ros2 launch as2_platform_crazyflie crazyflie_swarm_launch.py
-            platform_config_file:=<%= platform_config_file %>
-            swarm_config_file:=real_config/swarm_config_file.yaml
+            platform_config_file:=<%= config_file %>
+            swarm_config_file:=config/swarm_config_file.yaml
   <%- end %>
   - state_estimator:
       layout:
@@ -56,7 +55,7 @@ windows:
             namespace:=<%= drone_namespace %>
             use_sim_time:=<%= simulation %>
             plugin_name:=<%= estimator_plugin %>
-            plugin_config_file:=<%= config_path %>/state_estimator.yaml
+            plugin_config_file:=<%= config_file %>
   - controller:
       layout:
       panes:
@@ -64,8 +63,8 @@ windows:
             namespace:=<%= drone_namespace %>
             use_sim_time:=<%= simulation %>
             plugin_name:=pid_speed_controller
-            motion_controller_config_file:=<%= config_path %>/motion_controller.yaml
-            plugin_config_file:=<%= config_path %>/motion_controller_plugin.yaml     
+            motion_controller_config_file:=<%= config_file %>
+            plugin_config_file:=<%= controller_plugin_config %>     
   - behaviors:
       layout:
       panes:

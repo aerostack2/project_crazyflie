@@ -2,16 +2,16 @@
 
 usage() {
     echo "  options:"
-    echo "      -s: simulated, choices: [true | false]"
-    echo "      -m: multi agent, choices: [true | false]"
+    echo "      -s: simulated (default: false)"
+    echo "      -m: multi agent (default: false)"
     echo "      -e: estimator_type, choices: [ground_truth, raw_odometry, mocap_pose]"
-    echo "      -r: record rosbag"
-    echo "      -t: launch keyboard teleoperation"
-    echo "      -n: drone namespace, default is cf0"
+    echo "      -r: record rosbag (default: false)"
+    echo "      -t: launch keyboard teleoperation (default: false)"
+    echo "      -n: drone namespace (default: cf)"
 }
 
 # Arg parser
-while getopts "se:mrtn" opt; do
+while getopts "se:mrtn:" opt; do
   case ${opt} in
     s )
       simulated="true"
@@ -67,10 +67,10 @@ drone_namespace=${drone_namespace:="cf"}
 
 if [[ ${swarm} == "true" ]]; then
   num_drones=3
-  simulation_config="sim_config/world_swarm.json"
+  simulation_config="assets/world_swarm.json"
 else
   num_drones=1
-  simulation_config="sim_config/world.json"
+  simulation_config="assets/world.json"
 fi
 
 # Generate the list of drone namespaces

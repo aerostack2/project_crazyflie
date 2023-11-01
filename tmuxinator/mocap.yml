@@ -7,4 +7,4 @@ windows:
       panes:
         - ros2 launch mocap_optitrack mocap.launch.py
             namespace:=optitrack
-            config_file:=real_config/mocap.yaml
+            config_file:=config/mocap_config.yaml
