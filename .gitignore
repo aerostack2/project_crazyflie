@@ -1,2 +1,2 @@
-rosbags/*
+rosbag/rosbags/*
 *.csv

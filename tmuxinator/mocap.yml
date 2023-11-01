@@ -5,6 +5,9 @@ windows:
   - mocap:
       layout:
       panes:
-        - ros2 launch mocap_optitrack mocap.launch.py
-            namespace:=optitrack
-            config_file:=real_config/mocap.yaml
+        # - ros2 launch mocap_optitrack mocap.launch.py
+        #     namespace:=optitrack
+        #     config_file:=real_config/mocap_optitrack.yaml
+        - ros2 launch mocap_vicon_driver mocap_vicon_driver_launch.py 
+            namespace:=vicon
+            config_file:=real_config/mocap_vicon.yaml

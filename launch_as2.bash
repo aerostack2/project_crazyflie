@@ -2,16 +2,16 @@
 
 usage() {
     echo "  options:"
-    echo "      -s: simulated, choices: [true | false]"
-    echo "      -m: multi agent, choices: [true | false]"
+    echo "      -s: simulated (default: false)"
+    echo "      -m: multi agent (default: false)"
     echo "      -e: estimator_type, choices: [ground_truth, raw_odometry, mocap_pose]"
-    echo "      -r: record rosbag"
-    echo "      -t: launch keyboard teleoperation"
-    echo "      -n: drone namespace, default is cf0"
+    echo "      -r: record rosbag (default: false)"
+    echo "      -t: launch keyboard teleoperation (default: false)"
+    echo "      -n: drone namespace (default: cf)"
 }
 
 # Arg parser
-while getopts "se:mrtn" opt; do
+while getopts "se:mrtn:" opt; do
   case ${opt} in
     s )
       simulated="true"

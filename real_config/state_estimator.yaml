@@ -1,3 +1,5 @@
 /**:
   ros__parameters:
     use_ignition_tf: False
+    rigid_body_name: "root"
+    mocap_topic: "/rigid_bodies"
