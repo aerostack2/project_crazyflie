@@ -3,4 +3,4 @@
     ros__parameters:
       stream_mode: "ClientPull"
       host_name: "10.121.10.12:801"
-      frame_id: "mocap"
+      frame_id: "earth"
