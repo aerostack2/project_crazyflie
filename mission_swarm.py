@@ -171,7 +171,7 @@ def get_path(i: int) -> list:
     0   3           4       9           2
 
     """
-    center = [1.0, 1.0]
+    center = [0.0, 0.0]
     delta_frontward = Choreographer.delta_formation(3, 3, 0, center)
     delta_backward = Choreographer.delta_formation(3, 3, 180, center)
     line = Choreographer.line_formation(3, 180, center)
