@@ -65,7 +65,15 @@ windows:
             use_sim_time:=<%= simulation %>
             plugin_name:=pid_speed_controller
             motion_controller_config_file:=<%= config_path %>/motion_controller.yaml
-            plugin_config_file:=<%= config_path %>/motion_controller_plugin.yaml     
+            plugin_config_file:=<%= config_path %>/motion_controller_plugin.yaml
+  - geozones:
+      layout:
+      panes:
+        - ros2 launch geozones geozones_launch.py
+            namespace:=<%= drone_namespace %>
+            use_sim_time:=<%= simulation %>
+            config_file:=<%= config_path %>/geozones_config.json
+            debug_rviz:=true
   - behaviors:
       layout:
       panes:

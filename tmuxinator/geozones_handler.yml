@@ -1,0 +1,13 @@
+<%
+# Input parameters
+drone_namespace = @settings["drone_namespace"]
+%>
+
+attach: true
+root: ./
+startup_window: geozones_handler
+windows:
+  - rosbag:
+      layout:
+      panes:
+        - python3 alert_handler.py
