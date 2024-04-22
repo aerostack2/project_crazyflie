@@ -87,27 +87,36 @@ do
     base_launch="false"
   fi 
 
-  tmuxinator start -n ${ns} -p tmuxinator/session.yml drone_namespace=${ns} base_launch=${base_launch}  estimator_plugin=${estimator_plugin} simulation=${simulated} simulation_config=${simulation_config} &
+  tmuxinator start -n ${ns} -p tmuxinator/session.yml \
+      drone_namespace=${ns} \
+      base_launch=${base_launch} \
+      estimator_plugin=${estimator_plugin} \
+      simulation=${simulated} \
+      simulation_config=${simulation_config} &
   wait
 done
 
 if [[ ${estimator_plugin} == "mocap_pose" ]]; then
-  tmuxinator start -n mocap -p tmuxinator/mocap.yml &
+  tmuxinator start -n mocap -p tmuxinator/mocap4ros2.yml &
   wait
 fi
 
 if [[ ${record_rosbag} == "true" ]]; then
-  tmuxinator start -n rosbag -p tmuxinator/rosbag.yml drone_namespace=$(list_to_string "${drone_ns[@]}") &
+  tmuxinator start -n rosbag -p tmuxinator/rosbag.yml \
+      drone_namespace=$(list_to_string "${drone_ns[@]}") &
   wait
 fi
 
 if [[ ${launch_keyboard_teleop} == "true" ]]; then
-  tmuxinator start -n keyboard_teleop -p tmuxinator/keyboard_teleop.yml simulation=true drone_namespace=$(list_to_string "${drone_ns[@]}") &
+  tmuxinator start -n keyboard_teleop -p tmuxinator/keyboard_teleop.yml \
+      simulation=${simulated} \
+      drone_namespace=$(list_to_string "${drone_ns[@]}") &
   wait
 fi
 
 if [[ ${simulated} == "true" ]]; then
-  tmuxinator start -n gazebo -p tmuxinator/gazebo.yml simulation_config=${simulation_config} &
+  tmuxinator start -n gazebo -p tmuxinator/gazebo.yml \
+      simulation_config=${simulation_config} &
   wait
 fi
 
