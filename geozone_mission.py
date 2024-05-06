@@ -14,7 +14,8 @@ class DroneTest(DroneInterface):
     def __init__(self, name, verbose=False, use_sim_time=False):
         super().__init__(name, verbose, use_sim_time)
 
-        self.create_subscription(AlertEvent, 'alert_event', self.alert_cbk, 10)
+        self.create_subscription(
+            AlertEvent, '/cf0/alert_event', self.alert_cbk, 10)
 
         self.motion_ref_handler = MotionReferenceHandlerModule(drone=self)
 
@@ -26,18 +27,18 @@ class DroneTest(DroneInterface):
             self.go_to.stop()
             # if self.current_bh is not None:
             #     self.current_bh.stop()
-
             self.motion_ref_handler.hover()
+            self.get_logger().info("alert detected")
 
     def run_test(self):
         """ Run the mission """
         self.offboard()
         self.arm()
-        self.takeoff(2.0, wait=True)
+        self.takeoff(1.0, wait=True)
         sleep(1.0)
-        self.go_to(10.0, 0.0, 2.0, 0.5, wait=True)
+        self.go_to(10.0, 0.0, 1.0, 0.5, wait=True)
 
-        self.go_to(0.0, 0.0, 2.0, 0.5, wait=True)
+        self.go_to(0.0, 0.0, 1.0, 0.5, wait=True)
         self.land(0.5)
 
 
