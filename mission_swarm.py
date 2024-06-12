@@ -1,6 +1,6 @@
 #!/usr/bin/env python3
 
-# Copyright 2023 Universidad Politécnica de Madrid
+# Copyright 2024 Universidad Politécnica de Madrid
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -30,8 +30,8 @@
 
 """Simple mission for a swarm."""
 
-__authors__ = 'Rafael Pérez Seguí, Miguel Fernández Cortizas'
-__copyright__ = 'Copyright (c) 2022 Universidad Politécnica de Madrid'
+__authors__ = 'Pedro Arias Pérez, Rafael Pérez Seguí, Miguel Fernández Cortizas'
+__copyright__ = 'Copyright (c) 2024 Universidad Politécnica de Madrid'
 __license__ = 'BSD-3-Clause'
 
 import argparse
@@ -93,7 +93,7 @@ class Choreographer:
     @staticmethod
     def do_cycle(formation: list, index: int, height: int):
         """List to cycle with height."""
-        return [e + [height] for e in islice(cycle(formation), 0+index, 3+index)]
+        return [e + [height] for e in islice(cycle(formation), 0 + index, 3 + index)]
 
 
 class Dancer(DroneInterface):
