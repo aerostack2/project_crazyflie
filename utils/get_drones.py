@@ -2,7 +2,7 @@
 
 """Get drones names from config file"""
 
-# Copyright 2023 Universidad Politécnica de Madrid
+# Copyright 2024 Universidad Politécnica de Madrid
 #
 # Redistribution and use in source and binary forms, with or without
 # modification, are permitted provided that the following conditions are met:
@@ -31,7 +31,7 @@
 # POSSIBILITY OF SUCH DAMAGE.
 
 __authors__ = "Rafael Pérez Seguí, Pedro Arias Pérez"
-__copyright__ = "Copyright (c) 2022 Universidad Politécnica de Madrid"
+__copyright__ = "Copyright (c) 2024 Universidad Politécnica de Madrid"
 __license__ = "BSD-3-Clause"
 
 import argparse
@@ -84,7 +84,6 @@ def get_drones_namespaces(filename: Path) -> list[str]:
         return get_drones_namespaces_yaml(filename)
     else:
         raise ValueError("Unsupported file format. Only JSON and YAML files are supported.")
-
 
 
 if __name__ == "__main__":
