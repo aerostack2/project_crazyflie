@@ -42,8 +42,6 @@ while getopts "e:rtsm" opt; do
   esac
 done
 
-source utils/tools.bash
-
 # Shift optional args
 shift $((OPTIND -1))
 
