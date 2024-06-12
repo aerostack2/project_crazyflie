@@ -1,22 +1,17 @@
 #!/bin/bash
 
 # Get drone namespaces for different configurations
-drone_namespaces_sim=$(python3 utils/get_drones.py sim_config/world.json)
-drone_namespaces_sim_swarm=$(python3 utils/get_drones.py sim_config/world_swarm.json)
-drone_namespaces_sim_real=$(python3 utils/get_drones.py real_config/swarm_config_file.yaml)
-
-# Convert namespace strings into lists
-drone_namespaces_sim_list=($(echo $drone_namespaces_sim | tr ':' ' '))
-drone_namespaces_sim_swarm_list=($(echo $drone_namespaces_sim_swarm | tr ':' ' '))
-drone_namespaces_sim_real_list=($(echo $drone_namespaces_sim_real | tr ':' ' '))
+drone_namespaces_sim=$(python3 utils/get_drones.py sim_config/world.json --sep ' ')
+drone_namespaces_sim_swarm=$(python3 utils/get_drones.py sim_config/world_swarm.json --sep ' ')
+drone_namespaces_sim_real=$(python3 utils/get_drones.py real_config/swarm_config_file.yaml --sep ' ')
 
 # List of Tmux sessions to be killed
 tmux_session_list=("keyboard_teleop" "rosbag" "mocap" "gazebo")
 
 # Append drone namespaces to Tmux session list
-tmux_session_list+=("${drone_namespaces_sim_list[@]}")
-tmux_session_list+=("${drone_namespaces_sim_swarm_list[@]}")
-tmux_session_list+=("${drone_namespaces_sim_real_list[@]}")
+tmux_session_list+=("${drone_namespaces_sim[@]}")
+tmux_session_list+=("${drone_namespaces_sim_swarm[@]}")
+tmux_session_list+=("${drone_namespaces_sim_real[@]}")
 
 # For each drone namespace, add to the list
 for ns in "$@"; do
