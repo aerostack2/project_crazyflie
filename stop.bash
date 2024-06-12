@@ -1,12 +1,22 @@
 #!/bin/bash
 
-# Set default input element
-if [ $# -eq 0 ]; then
-  set -- "cf0"
-fi
+# Get drone namespaces for different configurations
+drone_namespaces_sim=$(python3 utils/get_drones.py sim_config/world.json)
+drone_namespaces_sim_swarm=$(python3 utils/get_drones.py sim_config/world_swarm.json)
+drone_namespaces_sim_real=$(python3 utils/get_drones.py real_config/swarm_config_file.yaml)
 
-# Make a tmux list of sessions to be killed
-tmux_session_list=("keyboard_teleop" "rosbag" "mocap" "gazebo" "cf0" "cf1" "cf2")
+# Convert namespace strings into lists
+drone_namespaces_sim_list=($(echo $drone_namespaces_sim | tr ':' ' '))
+drone_namespaces_sim_swarm_list=($(echo $drone_namespaces_sim_swarm | tr ':' ' '))
+drone_namespaces_sim_real_list=($(echo $drone_namespaces_sim_real | tr ':' ' '))
+
+# List of Tmux sessions to be killed
+tmux_session_list=("keyboard_teleop" "rosbag" "mocap" "gazebo")
+
+# Append drone namespaces to Tmux session list
+tmux_session_list+=("${drone_namespaces_sim_list[@]}")
+tmux_session_list+=("${drone_namespaces_sim_swarm_list[@]}")
+tmux_session_list+=("${drone_namespaces_sim_real_list[@]}")
 
 # For each drone namespace, add to the list
 for ns in "$@"; do
