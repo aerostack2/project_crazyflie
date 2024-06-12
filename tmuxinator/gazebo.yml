@@ -1,5 +1,3 @@
-# ~/.tmuxinator/project_crazyflie_basic.yml
-
 <%
 # Input parameters
 simulation_config = @settings["simulation_config"]
