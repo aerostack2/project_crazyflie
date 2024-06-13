@@ -7,10 +7,11 @@ usage() {
     echo "      -t: launch keyboard teleoperation"
     echo "      -s: simulated, choices: [true | false]"
     echo "      -m: multi agent, choices: [true | false]"
+    echo "      -v: open rviz, choices: [true | false]"
 }
 
 # Arg parser
-while getopts "e:rtsm" opt; do
+while getopts "e:rtsmv" opt; do
   case ${opt} in
     e )
       estimator_plugin="${OPTARG}"
@@ -26,6 +27,9 @@ while getopts "e:rtsm" opt; do
       ;;
     m )
       swarm="true"
+      ;;
+    v )
+      rviz="true"
       ;;
     \? )
       echo "Invalid option: -$OPTARG" >&2
@@ -53,6 +57,7 @@ if [[ ${simulated} == "true" ]]; then
   estimator_plugin="ground_truth"
 fi
 swarm=${swarm:="false"}
+rviz=${rviz:="false"}
 record_rosbag=${record_rosbag:="false"}
 launch_keyboard_teleop=${launch_keyboard_teleop:="false"}
 
@@ -106,6 +111,13 @@ fi
 if [[ ${simulated} == "true" ]]; then
   tmuxinator start -n gazebo -p tmuxinator/gazebo.yml \
       simulation_config=${swarm_config} &
+  wait
+fi
+
+if [[ ${rviz} == "true" ]]; then
+  tmuxinator start -p tmuxinator/rviz.yml \
+      simulation=${simulated} \
+      drone_list=$(python3 utils/get_drones.py ${swarm_config} --sep ',') &
   wait
 fi
 

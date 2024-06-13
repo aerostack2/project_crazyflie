@@ -6,7 +6,7 @@ drone_namespaces_sim_swarm=$(python3 utils/get_drones.py sim_config/world_swarm.
 drone_namespaces_sim_real=$(python3 utils/get_drones.py real_config/swarm_config_file.yaml --sep ' ')
 
 # List of Tmux sessions to be killed
-tmux_session_list=("keyboard_teleop" "rosbag" "mocap" "gazebo")
+tmux_session_list=("keyboard_teleop" "rosbag" "mocap" "gazebo" "rviz")
 
 # Append drone namespaces to Tmux session list
 tmux_session_list+=("${drone_namespaces_sim[@]}")
@@ -24,7 +24,7 @@ if [[ -n "$TMUX" ]]; then
 fi
 
 # Send Ctrl+C signal to each window of each session
-for session in "${tmux_session_list[@]}"; do
+for session in ${tmux_session_list[@]}; do
   # Check if session exists
   if tmux has-session -t "$session" 2>/dev/null; then
     # Get the list of windows in the session
@@ -39,7 +39,7 @@ for session in "${tmux_session_list[@]}"; do
 done
 
 # Kill all tmux sessions from the list except for the current one
-for session in "${tmux_session_list[@]}"; do
+for session in ${tmux_session_list[@]}; do
   if [[ "$session" != "$current_session" ]]; then
     tmux kill-session -t "$session" 2>/dev/null
   fi
