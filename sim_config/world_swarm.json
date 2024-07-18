@@ -2,48 +2,24 @@
     "world_name": "empty",
     "drones": [
         {
-            "model_type": "quadrotor_base",
+            "model_type": "crazyflie",
             "model_name": "cf0",
-            "xyz": [
-                -2.0,
-                0.0,
-                0.3
-            ],
-            "rpy": [
-                0,
-                0,
-                0.0
-            ],
+            "xyz": [ -2.0, 0.0, 0.3 ],
+            "rpy": [ 0, 0, 0.0 ],
             "flight_time": 60
         },
         {
-            "model_type": "quadrotor_base",
+            "model_type": "crazyflie",
             "model_name": "cf1",
-            "xyz": [
-                2.0,
-                0.0,
-                0.3
-            ],
-            "rpy": [
-                0,
-                0,
-                0.0
-            ],
+            "xyz": [ 2.0, 0.0, 0.3 ],
+            "rpy": [ 0, 0, 0.0 ],
             "flight_time": 60
         },
         {
-            "model_type": "quadrotor_base",
+            "model_type": "crazyflie",
             "model_name": "cf2",
-            "xyz": [
-                0.0,
-                0.0,
-                0.3
-            ],
-            "rpy": [
-                0,
-                0,
-                0.0
-            ],
+            "xyz": [ 0.0, 0.0, 0.3 ],
+            "rpy": [ 0, 0, 0.0 ],
             "flight_time": 60
         }
     ]
