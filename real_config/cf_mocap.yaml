@@ -12,7 +12,6 @@
   state_estimator:
     ros__parameters:
       plugin_name: mocap_pose
-      use_ignition_tf: False
       mocap_topic: "/mocap/rigid_bodies"
       twist_smooth_filter_cte: 0.1
       orientation_smooth_filter_cte: 0.1
