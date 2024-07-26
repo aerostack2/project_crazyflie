@@ -6,8 +6,6 @@ Panels:
       Expanded:
         - /Global Options1
         - /Status1
-        - /TF1
-        - /TF1/Status1
         - /TF1/Frames1
         - /TF1/Tree1
       Splitter Ratio: 0.5
@@ -104,9 +102,9 @@ Visualization Manager:
       Visual Enabled: true
     - Class: rviz_default_plugins/Marker
       Enabled: true
-      Name: Marker
+      Name: ReferencePose
       Namespaces:
-        am: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -115,26 +113,11 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /viz/cf0/reference_pose
       Value: true
-    - Alpha: 1
-      Buffer Length: 1
-      Class: rviz_default_plugins/Path
-      Color: 25; 255; 0
+    - Class: rviz_default_plugins/Marker
       Enabled: true
-      Head Diameter: 0.30000001192092896
-      Head Length: 0.20000000298023224
-      Length: 0.30000001192092896
-      Line Style: Lines
-      Line Width: 0.029999999329447746
-      Name: Path
-      Offset:
-        X: 0
-        Y: 0
-        Z: 0
-      Pose Color: 255; 85; 255
-      Pose Style: None
-      Radius: 0.029999999329447746
-      Shaft Diameter: 0.10000000149011612
-      Shaft Length: 0.10000000149011612
+      Name: HistoryPoses
+      Namespaces:
+        am: true
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -196,9 +179,9 @@ Visualization Manager:
       Visual Enabled: true
     - Class: rviz_default_plugins/Marker
       Enabled: true
-      Name: Marker
+      Name: ReferencePose
       Namespaces:
-        am: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -207,26 +190,11 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /viz/cf1/reference_pose
       Value: true
-    - Alpha: 1
-      Buffer Length: 1
-      Class: rviz_default_plugins/Path
-      Color: 53; 132; 228
+    - Class: rviz_default_plugins/Marker
       Enabled: true
-      Head Diameter: 0.30000001192092896
-      Head Length: 0.20000000298023224
-      Length: 0.30000001192092896
-      Line Style: Lines
-      Line Width: 0.029999999329447746
-      Name: Path
-      Offset:
-        X: 0
-        Y: 0
-        Z: 0
-      Pose Color: 255; 85; 255
-      Pose Style: None
-      Radius: 0.029999999329447746
-      Shaft Diameter: 0.10000000149011612
-      Shaft Length: 0.10000000149011612
+      Name: HistoryPoses
+      Namespaces:
+        am: true
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -288,9 +256,9 @@ Visualization Manager:
       Visual Enabled: true
     - Class: rviz_default_plugins/Marker
       Enabled: true
-      Name: Marker
+      Name: ReferencePose
       Namespaces:
-        am: true
+        {}
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -299,26 +267,11 @@ Visualization Manager:
         Reliability Policy: Reliable
         Value: /viz/cf2/reference_pose
       Value: true
-    - Alpha: 1
-      Buffer Length: 1
-      Class: rviz_default_plugins/Path
-      Color: 224; 27; 36
+    - Class: rviz_default_plugins/Marker
       Enabled: true
-      Head Diameter: 0.30000001192092896
-      Head Length: 0.20000000298023224
-      Length: 0.30000001192092896
-      Line Style: Lines
-      Line Width: 0.029999999329447746
-      Name: Path
-      Offset:
-        X: 0
-        Y: 0
-        Z: 0
-      Pose Color: 255; 85; 255
-      Pose Style: None
-      Radius: 0.029999999329447746
-      Shaft Diameter: 0.10000000149011612
-      Shaft Length: 0.10000000149011612
+      Name: HistoryPoses
+      Namespaces:
+        am: true
       Topic:
         Depth: 5
         Durability Policy: Volatile
@@ -332,23 +285,113 @@ Visualization Manager:
       Frame Timeout: 15
       Frames:
         All Enabled: false
+        cf0:
+          Value: true
+        cf0/air_pressure:
+          Value: false
+        cf0/air_pressure/internal:
+          Value: false
+        cf0/air_pressure/internal/air_pressure:
+          Value: false
+        cf0/base_footprint:
+          Value: false
         cf0/base_link:
+          Value: false
+        cf0/imu:
+          Value: false
+        cf0/imu/internal:
+          Value: false
+        cf0/imu/internal/imu:
+          Value: false
+        cf0/magnetometer:
+          Value: false
+        cf0/magnetometer/internal:
+          Value: false
+        cf0/magnetometer/internal/magnetometer:
           Value: false
         cf0/map:
           Value: false
         cf0/odom:
           Value: false
+        cf0/rotor_0:
+          Value: false
+        cf0/rotor_1:
+          Value: false
+        cf0/rotor_2:
+          Value: false
+        cf0/rotor_3:
+          Value: false
+        cf1:
+          Value: true
+        cf1/air_pressure:
+          Value: false
+        cf1/air_pressure/internal:
+          Value: false
+        cf1/air_pressure/internal/air_pressure:
+          Value: false
+        cf1/base_footprint:
+          Value: false
         cf1/base_link:
+          Value: false
+        cf1/imu:
+          Value: false
+        cf1/imu/internal:
+          Value: false
+        cf1/imu/internal/imu:
+          Value: false
+        cf1/magnetometer:
+          Value: false
+        cf1/magnetometer/internal:
+          Value: false
+        cf1/magnetometer/internal/magnetometer:
           Value: false
         cf1/map:
           Value: false
         cf1/odom:
           Value: false
+        cf1/rotor_0:
+          Value: false
+        cf1/rotor_1:
+          Value: false
+        cf1/rotor_2:
+          Value: false
+        cf1/rotor_3:
+          Value: false
+        cf2:
+          Value: true
+        cf2/air_pressure:
+          Value: false
+        cf2/air_pressure/internal:
+          Value: false
+        cf2/air_pressure/internal/air_pressure:
+          Value: false
+        cf2/base_footprint:
+          Value: false
         cf2/base_link:
+          Value: false
+        cf2/imu:
+          Value: false
+        cf2/imu/internal:
+          Value: false
+        cf2/imu/internal/imu:
+          Value: false
+        cf2/magnetometer:
+          Value: false
+        cf2/magnetometer/internal:
+          Value: false
+        cf2/magnetometer/internal/magnetometer:
           Value: false
         cf2/map:
           Value: false
         cf2/odom:
+          Value: false
+        cf2/rotor_0:
+          Value: false
+        cf2/rotor_1:
+          Value: false
+        cf2/rotor_2:
+          Value: false
+        cf2/rotor_3:
           Value: false
         earth:
           Value: true
@@ -361,15 +404,84 @@ Visualization Manager:
         earth:
           cf0/map:
             cf0/odom:
-              cf0/base_link:
+              cf0:
+                cf0/air_pressure:
+                  cf0/air_pressure/internal:
+                    cf0/air_pressure/internal/air_pressure:
+                      {}
+                cf0/base_link:
+                  {}
+                cf0/imu:
+                  cf0/imu/internal:
+                    cf0/imu/internal/imu:
+                      {}
+                cf0/magnetometer:
+                  cf0/magnetometer/internal:
+                    cf0/magnetometer/internal/magnetometer:
+                      {}
+                cf0/rotor_0:
+                  {}
+                cf0/rotor_1:
+                  {}
+                cf0/rotor_2:
+                  {}
+                cf0/rotor_3:
+                  {}
+              cf0/base_footprint:
                 {}
           cf1/map:
             cf1/odom:
-              cf1/base_link:
+              cf1:
+                cf1/air_pressure:
+                  cf1/air_pressure/internal:
+                    cf1/air_pressure/internal/air_pressure:
+                      {}
+                cf1/base_link:
+                  {}
+                cf1/imu:
+                  cf1/imu/internal:
+                    cf1/imu/internal/imu:
+                      {}
+                cf1/magnetometer:
+                  cf1/magnetometer/internal:
+                    cf1/magnetometer/internal/magnetometer:
+                      {}
+                cf1/rotor_0:
+                  {}
+                cf1/rotor_1:
+                  {}
+                cf1/rotor_2:
+                  {}
+                cf1/rotor_3:
+                  {}
+              cf1/base_footprint:
                 {}
           cf2/map:
             cf2/odom:
-              cf2/base_link:
+              cf2:
+                cf2/air_pressure:
+                  cf2/air_pressure/internal:
+                    cf2/air_pressure/internal/air_pressure:
+                      {}
+                cf2/base_link:
+                  {}
+                cf2/imu:
+                  cf2/imu/internal:
+                    cf2/imu/internal/imu:
+                      {}
+                cf2/magnetometer:
+                  cf2/magnetometer/internal:
+                    cf2/magnetometer/internal/magnetometer:
+                      {}
+                cf2/rotor_0:
+                  {}
+                cf2/rotor_1:
+                  {}
+                cf2/rotor_2:
+                  {}
+                cf2/rotor_3:
+                  {}
+              cf2/base_footprint:
                 {}
       Update Interval: 0
       Value: true
@@ -419,7 +531,7 @@ Visualization Manager:
   Views:
     Current:
       Class: rviz_default_plugins/Orbit
-      Distance: 7.295444011688232
+      Distance: 11.347742080688477
       Enable Stereo Rendering:
         Stereo Eye Separation: 0.05999999865889549
         Stereo Focal Distance: 1
@@ -455,5 +567,5 @@ Window Geometry:
   Views:
     collapsed: true
   Width: 1878
-  X: 42
-  Y: 27
+  X: 615
+  Y: 164

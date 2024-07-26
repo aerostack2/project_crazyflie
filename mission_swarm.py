@@ -1,27 +1,60 @@
-#!/bin/python3
+#!/usr/bin/env python3
 
-"""
-mission_swarm.py
-"""
+# Copyright 2024 Universidad Politécnica de Madrid
+#
+# Redistribution and use in source and binary forms, with or without
+# modification, are permitted provided that the following conditions are met:
+#
+#    * Redistributions of source code must retain the above copyright
+#      notice, this list of conditions and the following disclaimer.
+#
+#    * Redistributions in binary form must reproduce the above copyright
+#      notice, this list of conditions and the following disclaimer in the
+#      documentation and/or other materials provided with the distribution.
+#
+#    * Neither the name of the Universidad Politécnica de Madrid nor the names of its
+#      contributors may be used to endorse or promote products derived from
+#      this software without specific prior written permission.
+#
+# THIS SOFTWARE IS PROVIDED BY THE COPYRIGHT HOLDERS AND CONTRIBUTORS "AS IS"
+# AND ANY EXPRESS OR IMPLIED WARRANTIES, INCLUDING, BUT NOT LIMITED TO, THE
+# IMPLIED WARRANTIES OF MERCHANTABILITY AND FITNESS FOR A PARTICULAR PURPOSE
+# ARE DISCLAIMED. IN NO EVENT SHALL THE COPYRIGHT HOLDER OR CONTRIBUTORS BE
+# LIABLE FOR ANY DIRECT, INDIRECT, INCIDENTAL, SPECIAL, EXEMPLARY, OR
+# CONSEQUENTIAL DAMAGES (INCLUDING, BUT NOT LIMITED TO, PROCUREMENT OF
+# SUBSTITUTE GOODS OR SERVICES; LOSS OF USE, DATA, OR PROFITS; OR BUSINESS
+# INTERRUPTION) HOWEVER CAUSED AND ON ANY THEORY OF LIABILITY, WHETHER IN
+# CONTRACT, STRICT LIABILITY, OR TORT (INCLUDING NEGLIGENCE OR OTHERWISE)
+# ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
+# POSSIBILITY OF SUCH DAMAGE.
 
-import sys
+"""Simple mission for a swarm."""
+
+__authors__ = 'Pedro Arias Pérez, Rafael Pérez Seguí, Miguel Fernández Cortizas'
+__copyright__ = 'Copyright (c) 2024 Universidad Politécnica de Madrid'
+__license__ = 'BSD-3-Clause'
+
 import argparse
-from typing import List, Optional
-from math import radians, cos, sin
 from itertools import cycle, islice
-import rclpy
-from as2_msgs.msg import YawMode
+from math import cos, radians, sin
+from typing import List, Optional
+
 from as2_msgs.msg import BehaviorStatus
-from as2_python_api.drone_interface import DroneInterface
+from as2_msgs.msg import YawMode
 from as2_python_api.behavior_actions.behavior_handler import BehaviorHandler
+from as2_python_api.drone_interface import DroneInterface
+import rclpy
 
 
 class Choreographer:
-    """Simple Geometric Choreographer"""
+    """Simple Geometric Choreographer."""
 
     @staticmethod
-    def delta_formation(base: float, height: float, orientation: float = 0.0, center: list = [0.0, 0.0]):
-        """Triangle"""
+    def delta_formation(base: float,
+                        height: float,
+                        orientation: float = 0.0,
+                        center: list = [0.0, 0.0]):
+        """Triangle."""
         theta = radians(orientation)
         v0 = [-height * cos(theta) / 2.0 - base * sin(theta) / 2.0 + center[0],
               base * cos(theta) / 2.0 - height * sin(theta) / 2.0 + center[1]]
@@ -32,7 +65,7 @@ class Choreographer:
 
     @staticmethod
     def line_formation(length: float, orientation: float = 0.0, center: list = [0.0, 0.0]):
-        """Line"""
+        """Line."""
         theta = radians(orientation)
         l0 = [length * cos(theta) / 2.0 + center[1], length * sin(theta) / 2.0 + center[1]]
         l1 = [0.0 + center[1], 0.0 + center[1]]
@@ -41,7 +74,7 @@ class Choreographer:
 
     @staticmethod
     def draw_waypoints(waypoints):
-        """Debug"""
+        """Debug."""
         import matplotlib.pyplot as plt
 
         print(waypoints)
@@ -59,13 +92,12 @@ class Choreographer:
 
     @staticmethod
     def do_cycle(formation: list, index: int, height: int):
-        """List to cycle with height"""
-        return list(e + [height]
-                    for e in list(islice(cycle(formation), 0+index, 3+index)))
+        """List to cycle with height."""
+        return [e + [height] for e in islice(cycle(formation), 0 + index, 3 + index)]
 
 
 class Dancer(DroneInterface):
-    """Drone Interface extended with path to perform and async behavior wait"""
+    """Drone Interface extended with path to perform and async behavior wait."""
 
     def __init__(self, namespace: str, path: list, verbose: bool = False,
                  use_sim_time: bool = False):
@@ -78,28 +110,28 @@ class Dancer(DroneInterface):
         self.__speed = 0.5
         self.__yaw_mode = YawMode.PATH_FACING
         self.__yaw_angle = None
-        self.__frame_id = "earth"
+        self.__frame_id = 'earth'
 
         self.current_behavior: Optional[BehaviorHandler] = None
 
     def reset(self) -> None:
-        """Set current waypoint in path to start point"""
+        """Set current waypoint in path to start point."""
         self.__current = 0
 
     def do_behavior(self, beh, *args) -> None:
-        """Start behavior and save current to check if finished or not"""
+        """Start behavior and save current to check if finished or not."""
         self.current_behavior = getattr(self, beh)
         self.current_behavior(*args)
 
     def go_to_next(self) -> None:
-        """Got to next position in path"""
+        """Got to next position in path."""
         point = self.__path[self.__current]
-        self.do_behavior("go_to", point[0], point[1], point[2], self.__speed,
+        self.do_behavior('go_to', point[0], point[1], point[2], self.__speed,
                          self.__yaw_mode, self.__yaw_angle, self.__frame_id, False)
         self.__current += 1
 
     def goal_reached(self) -> bool:
-        """Check if current behavior has finished"""
+        """Check if current behavior has finished."""
         if not self.current_behavior:
             return False
 
@@ -109,7 +141,7 @@ class Dancer(DroneInterface):
 
 
 class SwarmConductor:
-    """Swarm Conductor"""
+    """Swarm Conductor."""
 
     def __init__(self, drones_ns: List[str], verbose: bool = False,
                  use_sim_time: bool = False):
@@ -119,17 +151,17 @@ class SwarmConductor:
             self.drones[index] = Dancer(name, path, verbose, use_sim_time)
 
     def shutdown(self):
-        """Shutdown all drones in swarm"""
+        """Shutdown all drones in swarm."""
         for drone in self.drones.values():
             drone.shutdown()
 
     def reset_point(self):
-        """Reset path for all drones in swarm"""
+        """Reset path for all drones in swarm."""
         for drone in self.drones.values():
             drone.reset()
 
     def wait(self):
-        """Wait until all drones has reached their goal (aka finished its behavior)"""
+        """Wait until all drones has reached their goal (aka finished its behavior)."""
         all_finished = False
         while not all_finished:
             all_finished = True
@@ -137,25 +169,25 @@ class SwarmConductor:
                 all_finished = all_finished and drone.goal_reached()
 
     def get_ready(self):
-        """Arm and offboard for all drones in swarm"""
+        """Arm and offboard for all drones in swarm."""
         for drone in self.drones.values():
             drone.arm()
             drone.offboard()
 
     def takeoff(self):
-        """Takeoff swarm and wait for all drones"""
+        """Takeoff swarm and wait for all drones."""
         for drone in self.drones.values():
-            drone.do_behavior("takeoff", 1, 0.7, False)
+            drone.do_behavior('takeoff', 1, 0.7, False)
         self.wait()
 
     def land(self):
-        """Land swarm and wait for all drones"""
+        """Land swarm and wait for all drones."""
         for drone in self.drones.values():
-            drone.do_behavior("land", 0.4, False)
+            drone.do_behavior('land', 0.4, False)
         self.wait()
 
     def dance(self):
-        """Perform swarm choreography"""
+        """Perform swarm choreography."""
         self.reset_point()
         for _ in range(len(get_path(0))):
             for drone in self.drones.values():
@@ -164,12 +196,12 @@ class SwarmConductor:
 
 
 def get_path(i: int) -> list:
-    """Path: initial, steps, final
+    """
+    Path: initial, steps, final.
 
     1   1           6       7           0
     2       2   5               8       1
     0   3           4       9           2
-
     """
     center = [0.0, 0.0]
     delta_frontward = Choreographer.delta_formation(3, 3, 0, center)
@@ -187,51 +219,65 @@ def get_path(i: int) -> list:
 
 
 def confirm(msg: str = 'Continue') -> bool:
-    """Confirm message"""
-    confirmation = input(f"{msg}? (y/n): ")
-    if confirmation == "y":
+    """Confirm message."""
+    confirmation = input(f'{msg}? (y/n): ')
+    if confirmation == 'y':
         return True
     return False
 
 
 def main():
-    """Entrypoint"""
-    drones_ns = ['cf0', 'cf1', 'cf2']
-
+    """Entrypoint."""
     parser = argparse.ArgumentParser(
-        description="Starts gates mission for crazyswarm in either simulation or real environment")
+        description='Swarm mission')
+
     parser.add_argument('-s', '--simulated',
-                        action='store_true', default=False)
+                        action='store_true',
+                        default=False,
+                        help='Run mission in simulation mode')
+    parser.add_argument('-v', '--verbose',
+                        action='store_true',
+                        default=False,
+                        help='Enable verbose output')
+    default_drones_ns = ['cf0', 'cf1', 'cf2']
+    parser.add_argument('--drones_ns',
+                        nargs='+',
+                        default=default_drones_ns,
+                        help='List of drone namespaces')
 
     args = parser.parse_args()
+    use_sim_time = args.simulated
+    verbosity = args.verbose
+    drones_ns = args.drones_ns
 
-    if args.simulated:
-        print("Mission running in simulation mode")
+    if use_sim_time:
+        print(f'Running mission for drones {drones_ns} in simulation mode')
     else:
-        print("Mission running in real mode")
+        print(f'Running mission for drones {drones_ns} in real mode')
 
     rclpy.init()
-    swarm = SwarmConductor(drones_ns, verbose=False,
-                         use_sim_time=args.simulated)
 
-    if confirm("Takeoff"):
+    swarm = SwarmConductor(
+        drones_ns,
+        verbose=verbosity,
+        use_sim_time=use_sim_time)
+
+    if confirm('Takeoff'):
         swarm.get_ready()
         swarm.takeoff()
-
-        if confirm("Go to"):
+        if confirm('Go to'):
             swarm.dance()
-
-            while confirm("Replay"):
+            while confirm('Replay'):
                 swarm.dance()
-
-        confirm("Land")
+        confirm('Land')
         swarm.land()
 
-    print("Shutdown")
+    print('Shutdown')
     swarm.shutdown()
     rclpy.shutdown()
 
-    sys.exit(0)
+    print('Clean exit')
+    exit(0)
 
 
 if __name__ == '__main__':
