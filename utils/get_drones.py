@@ -1,7 +1,5 @@
 # /usr/bin/env python3
 
-"""Get drones names from config file"""
-
 # Copyright 2024 Universidad Politécnica de Madrid
 #
 # Redistribution and use in source and binary forms, with or without
@@ -30,9 +28,11 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-__authors__ = "Rafael Pérez Seguí, Pedro Arias Pérez"
-__copyright__ = "Copyright (c) 2024 Universidad Politécnica de Madrid"
-__license__ = "BSD-3-Clause"
+"""Get drones names from config file"""
+
+__authors__ = 'Rafael Perez-Segui, Pedro Arias-Perez'
+__copyright__ = 'Copyright (c) 2024 Universidad Politécnica de Madrid'
+__license__ = 'BSD-3-Clause'
 
 import argparse
 import yaml
@@ -40,31 +40,25 @@ from pathlib import Path
 import json
 
 
-def get_drones_namespaces_json(filename: Path) -> list[str]:
-    """Get drone namespaces listed in JSON config file
+def read_file(filename: Path) -> str:
+    """Read file content
 
-    :param filename: Path to drones JSON config file
+    :param filename: Path to file
     :type filename: Path
-    :return: List of drone namespaces
-    :rtype: list[str]
+    :return: File content
+    :rtype: str
     """
-    with open(filename, "r", encoding="utf-8") as file:
-        config = json.load(file)
-        return [drone["model_name"] for drone in config["drones"]]
-
-
-def get_drones_namespaces_yaml(filename: Path) -> list[str]:
-    """Get drone names listed in swarm config file
-    Open yaml file, read as a dictionary and return main keys as list
-
-    :param filename: Path to drones config file
-    :type filename: Path
-    :return: List of drones names
-    :rtype: list[str]
-    """
-    with open(filename, "r", encoding="utf-8") as file:
-        config = yaml.safe_load(file)
-        return list(config.keys())
+    filename = str(filename)
+    # Check extension of config file
+    if filename.endswith('.json'):
+        with open(filename, 'r', encoding='utf-8') as stream:
+            config = json.load(stream)
+    elif filename.endswith('.yaml') or filename.endswith('.yml'):
+        with open(filename, 'r', encoding='utf-8') as stream:
+            config = yaml.safe_load(stream)
+    else:
+        raise ValueError('Invalid configuration file extension.')
+    return config
 
 
 def get_drones_namespaces(filename: Path) -> list[str]:
@@ -76,21 +70,34 @@ def get_drones_namespaces(filename: Path) -> list[str]:
     :return: List of drone namespaces
     :rtype: list[str]
     """
-    # Determine file type based on extension
-    file_extension = filename.suffix.lower()
-    if file_extension == ".json":
-        return get_drones_namespaces_json(filename)
-    elif file_extension in [".yaml", ".yml"]:
-        return get_drones_namespaces_yaml(filename)
+    config = read_file(filename)
+    drones_namespaces=[]
+    
+    # For Gazebo and PX4 SITL
+    if 'drones' in config:
+        for drone in config['drones']:
+            # Gazebo
+            if 'model_name' in drone:
+                drones_namespaces.append(drone["model_name"])
+            # PX4 SITL
+            elif 'namespace' in drone:
+                drones_namespaces.append(drone["namespace"])
+    # AS2 Multirotor Simulator
     else:
-        raise ValueError("Unsupported file format. Only JSON and YAML files are supported.")
+        for drone in config:
+            if drone == '/**':
+                continue
+            drones_namespaces.append(drone)
+
+    if len(drones_namespaces) == 0:
+        raise ValueError("No drones found in config file")
+    return drones_namespaces
 
 
 if __name__ == "__main__":
     parser = argparse.ArgumentParser()
-    parser.add_argument(
-        "config_file", help="Path to drones config file")
-    parser.add_argument("--sep", help="Separator", default=":")
+    parser.add_argument('-p', '--config_file', type=str, required=True, help="Path to drones config file")
+    parser.add_argument('-s', '--separator', type=str, help="Separator", default=":")
     args = parser.parse_args()
 
     config_file = Path(args.config_file)
@@ -101,4 +108,4 @@ if __name__ == "__main__":
     drones = get_drones_namespaces(config_file)
 
     # Return for use in bash scripts
-    print(args.sep.join(drones))
+    print(args.separator.join(drones))
