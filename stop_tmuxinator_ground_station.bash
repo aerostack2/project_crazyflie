@@ -1,22 +1,7 @@
 #!/bin/bash
 
-# Get drone namespaces for different configurations
-drone_namespaces_sim=$(python3 utils/get_drones.py sim_config/world.json --sep ' ')
-drone_namespaces_sim_swarm=$(python3 utils/get_drones.py sim_config/world_swarm.json --sep ' ')
-drone_namespaces_sim_real=$(python3 utils/get_drones.py real_config/swarm_config_file.yaml --sep ' ')
-
-# List of Tmux sessions to be killed
-tmux_session_list=("keyboard_teleop" "rosbag" "mocap" "gazebo" "rviz")
-
-# Append drone namespaces to Tmux session list
-tmux_session_list+=("${drone_namespaces_sim[@]}")
-tmux_session_list+=("${drone_namespaces_sim_swarm[@]}")
-tmux_session_list+=("${drone_namespaces_sim_real[@]}")
-
-# For each drone namespace, add to the list
-for ns in "$@"; do
-  tmux_session_list+=("$ns")
-done
+# Make a tmux list of sessions to be killed
+tmux_session_list=("ground_station")
 
 # If inside tmux session, get the current session name
 if [[ -n "$TMUX" ]]; then

@@ -28,33 +28,31 @@
 # ARISING IN ANY WAY OUT OF THE USE OF THIS SOFTWARE, EVEN IF ADVISED OF THE
 # POSSIBILITY OF SUCH DAMAGE.
 
-"""Simple mission for a swarm."""
+"""Simple mission for a swarm of drones."""
 
-__authors__ = 'Pedro Arias Pérez, Rafael Pérez Seguí, Miguel Fernández Cortizas'
+__authors__ = 'Rafael Perez-Segui, Miguel Fernandez-Cortizas'
 __copyright__ = 'Copyright (c) 2024 Universidad Politécnica de Madrid'
 __license__ = 'BSD-3-Clause'
 
-import argparse
-from itertools import cycle, islice
-from math import cos, radians, sin
-from typing import List, Optional
 
-from as2_msgs.msg import BehaviorStatus
-from as2_msgs.msg import YawMode
-from as2_python_api.behavior_actions.behavior_handler import BehaviorHandler
-from as2_python_api.drone_interface import DroneInterface
+import argparse
+import sys
+from typing import List, Optional
+from math import radians, cos, sin
+from itertools import cycle, islice
 import rclpy
+from as2_msgs.msg import YawMode
+from as2_msgs.msg import BehaviorStatus
+from as2_python_api.drone_interface import DroneInterface
+from as2_python_api.behavior_actions.behavior_handler import BehaviorHandler
 
 
 class Choreographer:
-    """Simple Geometric Choreographer."""
+    """Simple Geometric Choreographer"""
 
     @staticmethod
-    def delta_formation(base: float,
-                        height: float,
-                        orientation: float = 0.0,
-                        center: list = [0.0, 0.0]):
-        """Triangle."""
+    def delta_formation(base: float, height: float, orientation: float = 0.0, center: list = [0.0, 0.0]):
+        """Triangle"""
         theta = radians(orientation)
         v0 = [-height * cos(theta) / 2.0 - base * sin(theta) / 2.0 + center[0],
               base * cos(theta) / 2.0 - height * sin(theta) / 2.0 + center[1]]
@@ -65,7 +63,7 @@ class Choreographer:
 
     @staticmethod
     def line_formation(length: float, orientation: float = 0.0, center: list = [0.0, 0.0]):
-        """Line."""
+        """Line"""
         theta = radians(orientation)
         l0 = [length * cos(theta) / 2.0 + center[1], length * sin(theta) / 2.0 + center[1]]
         l1 = [0.0 + center[1], 0.0 + center[1]]
@@ -74,7 +72,7 @@ class Choreographer:
 
     @staticmethod
     def draw_waypoints(waypoints):
-        """Debug."""
+        """Debug"""
         import matplotlib.pyplot as plt
 
         print(waypoints)
@@ -92,12 +90,13 @@ class Choreographer:
 
     @staticmethod
     def do_cycle(formation: list, index: int, height: int):
-        """List to cycle with height."""
-        return [e + [height] for e in islice(cycle(formation), 0 + index, 3 + index)]
+        """List to cycle with height"""
+        return list(e + [height]
+                    for e in list(islice(cycle(formation), 0+index, 3+index)))
 
 
 class Dancer(DroneInterface):
-    """Drone Interface extended with path to perform and async behavior wait."""
+    """Drone Interface extended with path to perform and async behavior wait"""
 
     def __init__(self, namespace: str, path: list, verbose: bool = False,
                  use_sim_time: bool = False):
@@ -110,28 +109,28 @@ class Dancer(DroneInterface):
         self.__speed = 0.5
         self.__yaw_mode = YawMode.PATH_FACING
         self.__yaw_angle = None
-        self.__frame_id = 'earth'
+        self.__frame_id = "earth"
 
         self.current_behavior: Optional[BehaviorHandler] = None
 
     def reset(self) -> None:
-        """Set current waypoint in path to start point."""
+        """Set current waypoint in path to start point"""
         self.__current = 0
 
     def do_behavior(self, beh, *args) -> None:
-        """Start behavior and save current to check if finished or not."""
+        """Start behavior and save current to check if finished or not"""
         self.current_behavior = getattr(self, beh)
         self.current_behavior(*args)
 
     def go_to_next(self) -> None:
-        """Got to next position in path."""
+        """Got to next position in path"""
         point = self.__path[self.__current]
-        self.do_behavior('go_to', point[0], point[1], point[2], self.__speed,
+        self.do_behavior("go_to", point[0], point[1], point[2], self.__speed,
                          self.__yaw_mode, self.__yaw_angle, self.__frame_id, False)
         self.__current += 1
 
     def goal_reached(self) -> bool:
-        """Check if current behavior has finished."""
+        """Check if current behavior has finished"""
         if not self.current_behavior:
             return False
 
@@ -141,7 +140,7 @@ class Dancer(DroneInterface):
 
 
 class SwarmConductor:
-    """Swarm Conductor."""
+    """Swarm Conductor"""
 
     def __init__(self, drones_ns: List[str], verbose: bool = False,
                  use_sim_time: bool = False):
@@ -151,43 +150,49 @@ class SwarmConductor:
             self.drones[index] = Dancer(name, path, verbose, use_sim_time)
 
     def shutdown(self):
-        """Shutdown all drones in swarm."""
+        """Shutdown all drones in swarm"""
         for drone in self.drones.values():
             drone.shutdown()
 
     def reset_point(self):
-        """Reset path for all drones in swarm."""
+        """Reset path for all drones in swarm"""
         for drone in self.drones.values():
             drone.reset()
 
     def wait(self):
-        """Wait until all drones has reached their goal (aka finished its behavior)."""
+        """Wait until all drones has reached their goal (aka finished its behavior)"""
         all_finished = False
         while not all_finished:
             all_finished = True
             for drone in self.drones.values():
                 all_finished = all_finished and drone.goal_reached()
 
-    def get_ready(self):
-        """Arm and offboard for all drones in swarm."""
+    def get_ready(self) -> bool:
+        """Arm and offboard for all drones in swarm"""
+        success = True
         for drone in self.drones.values():
-            drone.arm()
-            drone.offboard()
+            # Arm
+            success_arm = drone.arm()
+
+            # Offboard
+            success_offboard = drone.offboard()
+            success = success and success_arm and success_offboard
+        return success
 
     def takeoff(self):
-        """Takeoff swarm and wait for all drones."""
+        """Takeoff swarm and wait for all drones"""
         for drone in self.drones.values():
-            drone.do_behavior('takeoff', 1, 0.7, False)
+            drone.do_behavior("takeoff", 1, 0.7, False)
         self.wait()
 
     def land(self):
-        """Land swarm and wait for all drones."""
+        """Land swarm and wait for all drones"""
         for drone in self.drones.values():
-            drone.do_behavior('land', 0.4, False)
+            drone.do_behavior("land", 0.4, False)
         self.wait()
 
     def dance(self):
-        """Perform swarm choreography."""
+        """Perform swarm choreography"""
         self.reset_point()
         for _ in range(len(get_path(0))):
             for drone in self.drones.values():
@@ -196,12 +201,12 @@ class SwarmConductor:
 
 
 def get_path(i: int) -> list:
-    """
-    Path: initial, steps, final.
+    """Path: initial, steps, final
 
     1   1           6       7           0
     2       2   5               8       1
     0   3           4       9           2
+
     """
     center = [0.0, 0.0]
     delta_frontward = Choreographer.delta_formation(3, 3, 0, center)
@@ -219,65 +224,59 @@ def get_path(i: int) -> list:
 
 
 def confirm(msg: str = 'Continue') -> bool:
-    """Confirm message."""
-    confirmation = input(f'{msg}? (y/n): ')
-    if confirmation == 'y':
+    """Confirm message"""
+    confirmation = input(f"{msg}? (y/n): ")
+    if confirmation == "y":
         return True
     return False
 
 
 def main():
-    """Entrypoint."""
     parser = argparse.ArgumentParser(
-        description='Swarm mission')
+        description='Single drone mission')
 
-    parser.add_argument('-s', '--simulated',
-                        action='store_true',
-                        default=False,
-                        help='Run mission in simulation mode')
+    parser.add_argument('-n', '--namespaces',
+                        type=list,
+                        default=['drone0', 'drone1', 'drone2'],
+                        help='ID of the drone to be used in the mission')
     parser.add_argument('-v', '--verbose',
                         action='store_true',
                         default=False,
                         help='Enable verbose output')
-    default_drones_ns = ['cf0', 'cf1', 'cf2']
-    parser.add_argument('--drones_ns',
-                        nargs='+',
-                        default=default_drones_ns,
-                        help='List of drone namespaces')
+    parser.add_argument('-s', '--use_sim_time',
+                        action='store_true',
+                        default=False,
+                        help='Use simulation time')
 
     args = parser.parse_args()
-    use_sim_time = args.simulated
+    drones_namespace = args.namespaces
     verbosity = args.verbose
-    drones_ns = args.drones_ns
-
-    if use_sim_time:
-        print(f'Running mission for drones {drones_ns} in simulation mode')
-    else:
-        print(f'Running mission for drones {drones_ns} in real mode')
+    use_sim_time = args.use_sim_time
 
     rclpy.init()
-
     swarm = SwarmConductor(
-        drones_ns,
+        drones_namespace,
         verbose=verbosity,
         use_sim_time=use_sim_time)
 
-    if confirm('Takeoff'):
+    if confirm("Takeoff"):
         swarm.get_ready()
         swarm.takeoff()
-        if confirm('Go to'):
+
+        if confirm("Go to"):
             swarm.dance()
-            while confirm('Replay'):
+
+            while confirm("Replay"):
                 swarm.dance()
-        confirm('Land')
+
+        confirm("Land")
         swarm.land()
 
-    print('Shutdown')
+    print("Shutdown")
     swarm.shutdown()
     rclpy.shutdown()
 
-    print('Clean exit')
-    exit(0)
+    sys.exit(0)
 
 
 if __name__ == '__main__':
