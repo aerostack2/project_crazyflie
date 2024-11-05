@@ -2,8 +2,8 @@
 
 usage() {
     echo "  options:"
-    echo "      -n: select drones namespace to launch, values are comma separated. By default, it will get all drones from config file"
-    echo "      -g: launch using gnome-terminal instead of tmux. Default not set"
+    echo "      -n: select drones namespace to launch, values are comma separated. By default, it will get all drones from config file."
+    echo "      -g: launch using gnome-terminal. By default not set, uses tmux."
 }
 
 # Initialize variables with default values

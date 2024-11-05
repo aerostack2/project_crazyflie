@@ -2,12 +2,12 @@
 
 usage() {
     echo "  options:"
-    echo "      -m: launch mocap4ros2. Default not launch"
-    echo "      -t: launch keyboard teleoperation. Default not launch"
-    echo "      -v: open rviz. Default not launch"
-    echo "      -r: record rosbag. Default not launch"
-    echo "      -n: drone namespaces, comma separated. Default get from world description config file"
-    echo "      -g: launch using gnome-terminal instead of tmux. Default not set"
+    echo "      -m: disable launch mocap4ros2. By default set."
+    echo "      -t: launch keyboard teleoperation. By default not set."
+    echo "      -v: launch rviz. By default not set."
+    echo "      -r: record rosbag. By default not set."
+    echo "      -n: select drones namespace to launch, values are comma separated. By default, it launches all drones from world description file."
+    echo "      -g: launch using gnome-terminal. By default not set, uses tmux."
 }
 
 # Initialize variables with default values
