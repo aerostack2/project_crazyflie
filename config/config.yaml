@@ -19,11 +19,14 @@
     ros__parameters:
       # Flow deck & Lighthouse
       plugin_name: "raw_odometry"
+
       # # Motion Capture
-      # plugin_name: "mocap_pose"
-      # mocap_topic: "/mocap/rigid_bodies"
-      # twist_smooth_filter_cte: 0.1
-      # orientation_smooth_filter_cte: 0.1
+      # # The ground_truth plugin reads mocap directly.
+      # plugin_name: "ground_truth"
+      # ground_truth:
+      #   mocap_sub_topic: "/mocap/rigid_bodies"  # Subscribe to mocap instead of a pose topic.
+      #   twist_smooth_filter_cte: 0.1  # (0,1]; 1 = no filter. Applies to the differentiated twist.
+      #   rigid_body_name: "1"
 
   # Behaviors Motion
   TakeoffBehavior:
